@@ -12,7 +12,7 @@
 IF[{- !$disabled{tests} -}]
   PROGRAMS_NO_INST=\
           aborttest \
-          sanitytest exdatatest bntest \
+          sanitytest exdatatest bntest bptest \
           ectest ecdsatest ecdhtest gmdifftest pbelutest ideatest \
           md2test \
           hmactest \
@@ -45,6 +45,10 @@ IF[{- !$disabled{tests} -}]
   SOURCE[bntest]=bntest.c testutil.c test_main_custom.c
   INCLUDE[bntest]=.. ../crypto/include ../include
   DEPEND[bntest]=../libcrypto
+
+  SOURCE[bptest]=bptest.c
+  INCLUDE[bptest]=.. ../include
+  DEPEND[bptest]=../libcrypto
 
   SOURCE[ectest]=ectest.c
   INCLUDE[ectest]=.. ../include

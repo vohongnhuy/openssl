@@ -28,6 +28,7 @@
 #define DSA_SECONDS             10
 #define ECDSA_SECONDS   10
 #define ECDH_SECONDS    10
+#define BP_SECONDS      10
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -110,6 +111,9 @@
 # include <openssl/ec.h>
 #endif
 #include <openssl/modes.h>
+#ifndef OPENSSL_NO_BP
+# include <openssl/bp.h>
+#endif
 
 #ifndef HAVE_FORK
 # if defined(OPENSSL_SYS_VMS) || defined(OPENSSL_SYS_WINDOWS)
@@ -138,6 +142,8 @@
 #define EC_NUM          17
 #define MAX_ECDH_SIZE   256
 #define MISALIGN        64
+
+#define BP_NUM          1
 
 static volatile int run = 0;
 
@@ -258,6 +264,9 @@ static double dsa_results[DSA_NUM][2];
 #ifndef OPENSSL_NO_EC
 static double ecdsa_results[EC_NUM][2];
 static double ecdh_results[EC_NUM][1];
+#endif
+#ifndef OPENSSL_NO_BP
+static double bp_results[BP_NUM][1];
 #endif
 
 #if !defined(OPENSSL_NO_DSA) || !defined(OPENSSL_NO_EC)
@@ -1196,6 +1205,14 @@ static int run_benchmark(int async_jobs,
     return error ? -1 : total_op_count;
 }
 
+#define R_BP_FP254BNB  0
+#ifndef OPENSSL_NO_BP
+static OPT_PAIR bp_choices[] = {
+    {"fp254bnb", R_BP_FP254BNB},
+    {NULL}
+};
+#endif
+
 int speed_main(int argc, char **argv)
 {
     ENGINE *e = NULL;
@@ -1336,6 +1353,84 @@ int speed_main(int argc, char **argv)
         233, 283, 409,
         571, 253                /* X25519 */
     };
+#endif
+#ifndef OPENSSL_NO_EC
+    unsigned char ecdsasig[256];
+    unsigned int ecdsasiglen;
+    EC_KEY *ecdsa[EC_NUM];
+    long ecdsa_c[EC_NUM][2];
+    int ecdsa_doit[EC_NUM];
+    EC_KEY *ecdh_a[EC_NUM], *ecdh_b[EC_NUM];
+    unsigned char secret_a[MAX_ECDH_SIZE], secret_b[MAX_ECDH_SIZE];
+    int secret_size_a, secret_size_b;
+    int ecdh_checks = 0;
+    int secret_idx = 0;
+    long ecdh_c[EC_NUM][2];
+    int ecdh_doit[EC_NUM];
+#endif
+#ifndef OPENSSL_NO_BP
+    static unsigned int test_pairings[BP_NUM] = {
+        NID_fp254bnb
+    };
+    static const char *test_pairing_names[BP_NUM] = {
+        "fp254bnb"
+    };
+    static int test_pairing_bits[BP_NUM] = {
+        254
+    };
+    int bp_doit[BP_NUM];
+    BP_GROUP *bp[BP_NUM];
+    G1_ELEM *g1[BP_NUM];
+    G2_ELEM *g2[BP_NUM];
+    GT_ELEM *gt[BP_NUM];
+    BN_CTX *bctx = NULL;
+    long bp_c[BP_NUM][1];
+#endif
+
+    memset(results, 0, sizeof(results));
+#ifndef OPENSSL_NO_DSA
+    memset(dsa_key, 0, sizeof(dsa_key));
+#endif
+#ifndef OPENSSL_NO_EC
+    for (i = 0; i < EC_NUM; i++)
+        ecdsa[i] = NULL;
+    for (i = 0; i < EC_NUM; i++)
+        ecdh_a[i] = ecdh_b[i] = NULL;
+#endif
+#ifndef OPENSSL_NO_RSA
+    memset(rsa_key, 0, sizeof(rsa_key));
+    for (i = 0; i < RSA_NUM; i++)
+        rsa_key[i] = NULL;
+#endif
+#ifndef OPENSSL_NO_BP
+    for (i = 0; i < BP_NUM; i++) {
+        bp[i] = NULL;
+        g1[i] = NULL;
+        g2[i] = NULL;
+        gt[i] = NULL;
+    }
+#endif
+
+    memset(c, 0, sizeof(c));
+    memset(DES_iv, 0, sizeof(DES_iv));
+    memset(iv, 0, sizeof(iv));
+
+    for (i = 0; i < ALGOR_NUM; i++)
+        doit[i] = 0;
+    for (i = 0; i < RSA_NUM; i++)
+        rsa_doit[i] = 0;
+    for (i = 0; i < DSA_NUM; i++)
+        dsa_doit[i] = 0;
+#ifndef OPENSSL_NO_EC
+    for (i = 0; i < EC_NUM; i++)
+        ecdsa_doit[i] = 0;
+    for (i = 0; i < EC_NUM; i++)
+        ecdh_doit[i] = 0;
+#endif
+#ifndef OPENSSL_NO_BP
+    for (i = 0; i < BP_NUM; i++)
+        bp_doit[i] = 0;
+#endif
 
     int ecdsa_doit[EC_NUM] = { 0 };
     int ecdh_doit[EC_NUM] = { 0 };
@@ -1500,6 +1595,17 @@ int speed_main(int argc, char **argv)
         }
         if (found(*argv, ecdh_choices, &i)) {
             ecdh_doit[i] = 2;
+            continue;
+        }
+#endif
+#ifndef OPENSSL_NO_BP
+        if (strcmp(*argv, "bp") == 0) {
+            for (i = 0; i < BP_NUM; i++)
+                bp_doit[i] = 1;
+            continue;
+        }
+        if (found(*argv, bp_choices, &i)) {
+            bp_doit[i] = 2;
             continue;
         }
 #endif
@@ -1833,6 +1939,13 @@ int speed_main(int argc, char **argv)
         }
     }
 #  endif
+
+#  ifndef OPENSSL_NO_BP
+    bp_c[R_BP_FP254BNB][0] = count / 1000;
+#  endif
+
+#  define COND(d) (count < (d))
+#  define COUNT(d) (d)
 
 # else
 /* not worth fixing */
@@ -2726,6 +2839,52 @@ int speed_main(int argc, char **argv)
         }
     }
 #endif                          /* OPENSSL_NO_EC */
+#ifndef OPENSSL_NO_BP
+    if (RAND_status() != 1) {
+        RAND_seed(rnd_seed, sizeof rnd_seed);
+    }
+    for (j = 0; j < BP_NUM; j++) {
+        if (!bp_doit[j])
+            continue;
+        bp[j] = BP_GROUP_new_by_curve_name(test_pairings[j]);
+        g1[j] = G1_ELEM_new(bp[j]);
+        g2[j] = G2_ELEM_new(bp[j]);
+        gt[j] = GT_ELEM_new(bp[j]);
+        bctx = BN_CTX_new();
+        if (bp[j] == NULL || g1[j]== NULL || g2[j] == NULL || gt[j] == NULL) {
+                BIO_printf(bio_err, "Pairing failure.\n");
+                ERR_print_errors(bio_err);
+                rsa_count = 1;
+        } else {
+            if (!BP_GROUP_get_generator_G1(bp[j], g1[j]) ||
+                !BP_GROUP_get_generator_G2(bp[j], g2[j])) {
+                BIO_printf(bio_err, "Bilinear pairing failure.\n");
+                ERR_print_errors(bio_err);
+                rsa_count = 1;
+            } else {
+                pkey_print_message("bilinear", "pairing",
+                                   bp_c[j][0],
+                                   test_pairing_bits[j], BP_SECONDS);
+                Time_F(START);
+                for (count = 0, run = 1; COND(bp_c[j][0]); count++) {
+                    GT_ELEM_pairing(bp[j], gt[j], g1[j], g2[j], bctx);
+                }
+                d = Time_F(STOP);
+                BIO_printf(bio_err,
+                           mr ? "+R7:%ld:%d:%.2f\n" :
+                           "%ld %d-bit pairing ops in %.2fs\n", count,
+                           254, d);
+                bp_results[j][0] = d / (double)count;
+                rsa_count = count;
+            }
+            if (rsa_count <= 1) {
+                /* if longer than 10s, don't do any more */
+                for (j++; j < EC_NUM; j++)
+                    ecdh_doit[j] = 0;
+            }
+        }
+    }
+#endif
 #ifndef NO_FORK
  show_res:
 #endif
@@ -2860,6 +3019,28 @@ int speed_main(int argc, char **argv)
     }
 #endif
 
+#ifndef OPENSSL_NO_BP
+    j = 1;
+    for (k = 0; k < BP_NUM; k++) {
+        if (!bp_doit[k])
+            continue;
+        if (j && !mr) {
+            printf("%32sop        op/s\n", " ");
+            j = 0;
+        }
+        if (mr)
+            printf("+F5:%u:%u:%f:%f\n",
+                   k, test_curves_bits[k],
+                   ecdh_results[k][0], 1.0 / ecdh_results[k][0]);
+
+        else
+            printf("%4u bit pairing (%s) %8.4fs %8.1f\n",
+                   test_pairing_bits[k],
+                   test_pairing_names[k],
+                   bp_results[k][0], 1.0 / bp_results[k][0]);
+    }
+#endif
+
     ret = 0;
 
  end:
@@ -2885,6 +3066,15 @@ int speed_main(int argc, char **argv)
         OPENSSL_free(loopargs[i].secret_b);
 #endif
     }
+#ifndef OPENSSL_NO_BP
+    for (i = 0; i < BP_NUM; i++) {
+        BP_GROUP_free(bp[i]);
+        G1_ELEM_free(g1[i]);
+        G2_ELEM_free(g2[i]);
+        GT_ELEM_free(gt[i]);
+    }
+    BN_CTX_free(bctx);
+#endif
 
     if (async_jobs > 0) {
         for (i = 0; i < loopargs_len; i++)
@@ -2896,6 +3086,7 @@ int speed_main(int argc, char **argv)
     }
     OPENSSL_free(loopargs);
     release_engine(e);
+
     return (ret);
 }
 
