@@ -71,21 +71,6 @@ bp - Bilinear Pairing functions
  int G1_ELEMs_mul(const BP_GROUP *group, G1_ELEM *r, const BIGNUM *scalar,
 	size_t num, const G1_ELEM *points[], const BIGNUM *scalars[], BN_CTX *ctx);
 
- int G1_ELEM_add(const BP_GROUP *group, G1_ELEM *r, const G1_ELEM *point,
-	const G1_ELEM *b, BN_CTX *ctx);
- int G1_ELEM_dbl(const BP_GROUP *group, G1_ELEM *r, const G1_ELEM *point,
-	BN_CTX *ctx);
- int G1_ELEM_invert(const BP_GROUP *group, G1_ELEM *point, BN_CTX *ctx);
- int G1_ELEM_is_at_infinity(const BP_GROUP *group, const G1_ELEM *point);
- int G1_ELEM_is_on_curve(const BP_GROUP *group, const G1_ELEM *point, BN_CTX *ctx);
- int G1_ELEM_cmp(const BP_GROUP *group, const G1_ELEM *point, const G1_ELEM *b, BN_CTX *ctx);
- int G1_ELEM_make_affine(const BP_GROUP *group, G1_ELEM *point, BN_CTX *ctx);
- int G1_ELEMs_make_affine(const BP_GROUP *group, size_t num, G1_ELEM *points[], BN_CTX *ctx);
- int G1_ELEM_mul(const BP_GROUP *group, G1_ELEM *r, const BIGNUM *g_scalar,
-	const G1_ELEM *point, const BIGNUM *p_scalar, BN_CTX *ctx);
- int G1_ELEMs_mul(const BP_GROUP *group, G1_ELEM *r, const BIGNUM *scalar, size_t num,
-	const G1_ELEM *points[], const BIGNUM *scalars[], BN_CTX *ctx);
-
  G2_ELEM *G2_ELEM_new(const BP_GROUP *group);
  void G2_ELEM_free(G2_ELEM *point);
  void G2_ELEM_clear_free(G2_ELEM *point);
@@ -101,8 +86,6 @@ bp - Bilinear Pairing functions
 	const BIGNUM *x[2], const BIGNUM *y[2], BN_CTX *ctx);
  int G2_ELEM_get_affine_coordinates(const BP_GROUP *group,
 	const G2_ELEM *point, BIGNUM *x[2], BIGNUM *y[2], BN_CTX *ctx);
- int G2_ELEM_set_compressed_coordinates(const BP_GROUP *group, G2_ELEM *point,
-	const BIGNUM *x[2], int y_bit, BN_CTX *ctx);
  size_t G2_ELEM_point2oct(const BP_GROUP *group, const G2_ELEM *point,
 	point_conversion_form_t form, unsigned char *buf, size_t len, BN_CTX *ctx);
  int G2_ELEM_oct2point(const BP_GROUP *group, G2_ELEM *point,
@@ -128,6 +111,8 @@ bp - Bilinear Pairing functions
  int GT_ELEM_copy(GT_ELEM *a, const GT_ELEM *b);
  GT_ELEM *GT_ELEM_dup(const GT_ELEM *a, const BP_GROUP *group);
 
+ int GT_zero(GT_ELEM *a);
+ int GT_is_zero(GT_ELEM *a);
  int GT_ELEM_set_to_unity(const BP_GROUP *group, GT_ELEM *a);
  int GT_ELEM_is_unity(const BP_GROUP *group, const GT_ELEM *a);
  size_t GT_ELEM_elem2oct(const BP_GROUP *group, const GT_ELEM *point, unsigned char *buf,
@@ -165,8 +150,11 @@ BN curves are a rather dense family of elliptic curves parameterized by an integ
 p = 36u^4 + 36u^3 + 24u^2 + 6u + 1,
 q = 36u^4 + 36u^3 + 18u^2 + 6u + 1
 
-For BN-curves, G_1 is a q-order cyclic subgroup of E and G_2 is a q-order subgroup of E(F_{p^k}) isomorphic to a subgroup
-of E'(Fp^2). The group G_T is the set of q-th roots of unity in the finite field Fp^k.
+For BN-curves, G1 is a q-order cyclic subgroup of E and G2 is a subgroup of E'(Fp^2) isomorphic to a q-order subgroup
+of E(Fp^k). The group GT is the set of q-th roots of unity in the finite field Fp^k. Hence, G1 elements are points
+on the elliptic curve defined over the base field, G2 elements are points on the curve defined over Fp2, and GT
+elements are polynomials with coefficients in Fp and degree smaller than k. For this reason, groups G1 and G2 are
+commonly written additively, while group GT is usually written multiplicatively.
 
 A B<BP_GROUP> structure is used to represent the definition of an elliptic curve. Elements from G1 are represented by
 a B<G1_ELEM> structure storing a point on E. Elements from G2 are represented by a B<G2_ELEM> structure storing a
