@@ -159,9 +159,6 @@ int G2_ELEM_set_affine_coordinates(const BP_GROUP *group, G2_ELEM *point,
 int G2_ELEM_get_affine_coordinates(const BP_GROUP *group,
                                    const G2_ELEM *point, BIGNUM *x[2], BIGNUM *y[2],
                                    BN_CTX *ctx);
-int G2_ELEM_set_compressed_coordinates(const BP_GROUP *group, G2_ELEM *point,
-                                       const BIGNUM *x[2], int y_bit,
-                                       BN_CTX *ctx);
 size_t G2_ELEM_point2oct(const BP_GROUP *group, const G2_ELEM *point,
                          point_conversion_form_t form, unsigned char *buf,
                          size_t len, BN_CTX *ctx);
@@ -199,6 +196,8 @@ GT_ELEM *GT_ELEM_dup(const GT_ELEM *a, const BP_GROUP *group);
 /*
  * Functions for arithmetic in G_T.
  */
+int GT_ELEM_zero(GT_ELEM *a);
+int GT_ELEM_is_zero(GT_ELEM *a);
 int GT_ELEM_set_to_unity(const BP_GROUP *group, GT_ELEM *a);
 int GT_ELEM_is_unity(const BP_GROUP *group, const GT_ELEM *a);
 int GT_ELEM_add(const BP_GROUP *group, GT_ELEM *r, const GT_ELEM *a,

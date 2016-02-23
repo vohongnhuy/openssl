@@ -70,6 +70,16 @@ GT_ELEM *GT_ELEM_dup(const GT_ELEM *a, const BP_GROUP *group)
     return t;
 }
 
+int GT_ELEM_zero(GT_ELEM *a)
+{
+    return FP12_zero(a->f);
+}
+
+int GT_ELEM_is_zero(GT_ELEM *a)
+{
+    return FP12_is_zero(a->f);
+}
+
 int GT_ELEM_set_to_unity(const BP_GROUP *group, GT_ELEM *a)
 {
     if (!FP12_zero(a->f))
