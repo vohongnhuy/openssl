@@ -63,6 +63,33 @@ static const uint8_t fpbn254b_params[11][32] = {
      0x40, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}
 };
 
+static int BP_GROUP_init(BP_GROUP *group)
+{
+    if (group != NULL) {
+        group->field = BN_new();
+        group->param = BN_new();
+        group->one = BN_new();
+        group->mont = BN_MONT_CTX_new();
+        group->frb = FP2_new();
+        group->ec = EC_GROUP_new(EC_GFp_mont_method());
+        group->gen2 = G2_ELEM_new(group);
+        group->g2_pre_comp = NULL;
+        if (group->field == NULL || group->param == NULL || group->one == NULL
+            || group->mont == NULL || group->frb == NULL || group->ec == NULL ||
+            group->gen2 == NULL) {
+            BN_free(group->one);
+            BN_free(group->param);
+            BN_free(group->field);
+            FP2_free(group->frb);
+            BN_MONT_CTX_free(group->mont);
+            EC_GROUP_free(group->ec);
+            G2_ELEM_free(group->gen2);
+            return 0;
+        }
+    }
+    return 1;
+}
+
 BP_GROUP *BP_GROUP_new(void)
 {
     BP_GROUP *ret;
@@ -127,33 +154,6 @@ BP_GROUP *BP_GROUP_new_by_curve_name(int nid)
     BN_free(a);
     BN_free(b);
     return ret;
-}
-
-int BP_GROUP_init(BP_GROUP *group)
-{
-    if (group != NULL) {
-        group->field = BN_new();
-        group->param = BN_new();
-        group->one = BN_new();
-        group->mont = BN_MONT_CTX_new();
-        group->frb = FP2_new();
-        group->ec = EC_GROUP_new(EC_GFp_mont_method());
-        group->gen2 = G2_ELEM_new(group);
-        group->g2_pre_comp = NULL;
-        if (group->field == NULL || group->param == NULL || group->one == NULL
-            || group->mont == NULL || group->frb == NULL || group->ec == NULL ||
-            group->gen2 == NULL) {
-            BN_free(group->one);
-            BN_free(group->param);
-            BN_free(group->field);
-            FP2_free(group->frb);
-            BN_MONT_CTX_free(group->mont);
-            EC_GROUP_free(group->ec);
-            G2_ELEM_free(group->gen2);
-            return 0;
-        }
-    }
-    return 1;
 }
 
 void BP_GROUP_free(BP_GROUP *group)
@@ -395,11 +395,8 @@ int BP_GROUP_get_curve(const BP_GROUP *group, BIGNUM *p, BIGNUM *a,
     return EC_GROUP_get_curve_GFp(group->ec, p, a, b, ctx);
 }
 
-int BP_GROUP_set_param(BP_GROUP *group, BIGNUM *param, int negative) {
-	if (!BN_copy(group->param, param))
-		return 0;
-	BN_set_negative(group->param, negative);
-	return 1;
+int BP_GROUP_set_param(BP_GROUP *group, BIGNUM *param) {
+    return (BN_copy(group->param, param) != NULL);
 }
 
 int BP_GROUP_get_param(const BP_GROUP *group, BIGNUM *param) {
@@ -416,7 +413,7 @@ int BP_GROUP_get_generator_G1(const BP_GROUP *group, G1_ELEM *g)
     return EC_POINT_copy(g->p, EC_GROUP_get0_generator(group->ec));
 }
 
-const EC_GROUP *BP_GROUP_get_G1(BP_GROUP *group)
+const EC_GROUP *BP_GROUP_get_group_G1(BP_GROUP *group)
 {
     return group->ec;
 }

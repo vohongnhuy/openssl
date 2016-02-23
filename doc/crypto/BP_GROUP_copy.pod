@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-BP_GROUP_copy, BP_GROUP_dup, BP_GROUP_set_param, BP_GROUP_get_param, BP_GROUP_get_order, BP_GROUP_set_generator_G1, BP_GROUP_get_generator_G1, BP_GROUP_precompute_mult_G1, BP_GROUP_have_precompute_mult_G1, BP_GROUP_get_generator_G2, BP_GROUP_set_generator_G2, BP_GROUP_precompute_mult_G2, BP_GROUP_have_precompute_mult_G2 - Functions for manipulating B<BP_GROUP> objects.
+BP_GROUP_copy, BP_GROUP_dup, BP_GROUP_set_param, BP_GROUP_get_param, BP_GROUP_get_order, BP_GROUP_get_group_G1, BP_GROUP_set_generator_G1, BP_GROUP_get_generator_G1, BP_GROUP_precompute_mult_G1, BP_GROUP_have_precompute_mult_G1, BP_GROUP_get_generator_G2, BP_GROUP_set_generator_G2, BP_GROUP_precompute_mult_G2, BP_GROUP_have_precompute_mult_G2 - Functions for manipulating B<BP_GROUP> objects.
 
 =head1 SYNOPSIS
 
@@ -14,6 +14,7 @@ BP_GROUP_copy, BP_GROUP_dup, BP_GROUP_set_param, BP_GROUP_get_param, BP_GROUP_ge
 
  int BP_GROUP_set_param(BP_GROUP *group, BIGNUM *param);
  int BP_GROUP_get_param(const BP_GROUP *group, BIGNUM *param);
+ const EC_GROUP *BP_GROUP_get_group_G1(BP_GROUP *group);
  int BP_GROUP_set_generator_G1(const BP_GROUP *group, G1_ELEM *g, BIGNUM *n);
  int BP_GROUP_get_generator_G1(const BP_GROUP *group, G1_ELEM *g);
  int BP_GROUP_precompute_mult_G1(BP_GROUP *group, BN_CTX *ctx);
@@ -32,6 +33,8 @@ BP_GROUP object.
 
 BP_GROUP_set_param sets the parameterizing integer B<param> associated to the pairing-friendly curve.
 This integer is necessary for defining the pairing computation parameter.
+
+The function BP_GROUP_get_group_G1 returns the EC_GROUP structure storing the elliptic curve.
 
 BP_GROUP_set_generator_G1 sets parameters that must be agreed by all participants using the groups. These
 parameters include the B<generator>, and the B<order> and assume the cofactor to be 1. The B<generator> is a
@@ -60,7 +63,7 @@ BP_GROUP_dup returns a pointer to the duplicated curve, or NULL on error.
 
 =head1 SEE ALSO
 
-L<crypto(3)>, L<bp(3)>, L<BP_GROUP_new(3)>,
+L<crypto(3)>, L<bp(3)>, L<BP_GROUP_new(3)>, L<EC_GROUP_new(3)>,
 L<G1_ELEM_new(3)>, L<G1_ELEM_add(3)>,
 L<G2_ELEM_new(3)>, L<G2_ELEM_add(3)>,
 L<GT_ELEM_new(3)>, L<GT_ELEM_add(3)>
