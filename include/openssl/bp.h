@@ -49,7 +49,6 @@ BP_GROUP *BP_GROUP_new(void);
 BP_GROUP *BP_GROUP_new_by_curve_name(int nid);
 BP_GROUP *BP_GROUP_new_curve(const BIGNUM *p, const BIGNUM *a,
                              const BIGNUM *b, BN_CTX *ctx);
-int BP_GROUP_init(BP_GROUP *group);
 void BP_GROUP_free(BP_GROUP *group);
 void BP_GROUP_clear_free(BP_GROUP *group);
 int BP_GROUP_copy(BP_GROUP *dest, const BP_GROUP *src);
@@ -64,9 +63,9 @@ int BP_GROUP_set_curve(BP_GROUP *group, const BIGNUM *p,
                        const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
 int BP_GROUP_get_curve(const BP_GROUP *group, BIGNUM *p, BIGNUM *a,
                        BIGNUM *b, BN_CTX *ctx);
-const EC_GROUP *BP_GROUP_get_G1(BP_GROUP *group);
+const EC_GROUP *BP_GROUP_get_group_G1(BP_GROUP *group);
 int BP_GROUP_get_order(const BP_GROUP *group, BIGNUM *order, BN_CTX *ctx);
-int BP_GROUP_set_param(BP_GROUP *group, BIGNUM *param, int negative);
+int BP_GROUP_set_param(BP_GROUP *group, BIGNUM *param);
 int BP_GROUP_get_param(const BP_GROUP *group, BIGNUM *param);
 
 /*
@@ -74,10 +73,12 @@ int BP_GROUP_get_param(const BP_GROUP *group, BIGNUM *param);
  */
 int BP_GROUP_set_generator_G1(const BP_GROUP *group, G1_ELEM *g, BIGNUM *n);
 int BP_GROUP_get_generator_G1(const BP_GROUP *group, G1_ELEM *g);
-int BP_GROUP_get_generator_G2(const BP_GROUP *group, G2_ELEM *g);
-int BP_GROUP_set_generator_G2(const BP_GROUP *group, G2_ELEM *g);
 int BP_GROUP_precompute_mult_G1(BP_GROUP *group, BN_CTX *ctx);
 int BP_GROUP_have_precompute_mult_G1(const BP_GROUP *group);
+int BP_GROUP_get_generator_G2(const BP_GROUP *group, G2_ELEM *g);
+int BP_GROUP_set_generator_G2(const BP_GROUP *group, G2_ELEM *g);
+int BP_GROUP_precompute_mult_G2(BP_GROUP *group, BN_CTX *ctx);
+int BP_GROUP_have_precompute_mult_G2(const BP_GROUP *group);
 
 /*
  * Functions for manipulating G_1 elements.
@@ -185,9 +186,6 @@ int G2_ELEM_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *g_scalar,
 int G2_ELEMs_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *scalar,
                  size_t num, const G2_ELEM *points[],
                  const BIGNUM *scalars[], BN_CTX *ctx);
-int BP_GROUP_get_generator_G2(const BP_GROUP *group, G2_ELEM *g);
-int BP_GROUP_precompute_mult_G2(BP_GROUP *group, BN_CTX *ctx);
-int BP_GROUP_have_precompute_mult_G2(const BP_GROUP *group);
 
 /*
  * Functions for manipulating G_T elements.
