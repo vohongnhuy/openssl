@@ -330,7 +330,7 @@ static void g1_tests(BP_GROUP *group)
     if (!P || !Q || !R)
         ABORT;
 
-    fprintf(stdout, "\nTests for group G_1:\n");
+    fprintf(stdout, "\nTests for group G1:\n");
     fflush(stdout);
 
     if (!G1_ELEM_set_to_infinity(group, P))
@@ -561,7 +561,7 @@ static void g2_tests(BP_GROUP *group)
     if (!P || !Q || !R)
         ABORT;
 
-    fprintf(stdout, "Tests for group G_2:\n");
+    fprintf(stdout, "Tests for group G2:\n");
     fflush(stdout);
 
     if (!G2_ELEM_set_to_infinity(group, P))
@@ -846,7 +846,7 @@ static int gt_tests(const BP_GROUP *group)
     if (!BP_GROUP_get_order(group, order, ctx))
         ABORT;
 
-    fprintf(stdout, "Tests for group G_T:\n");
+    fprintf(stdout, "Tests for group GT:\n");
     fflush(stdout);
 
     fprintf(stdout, "verify pairing non-degeneracy ...");
