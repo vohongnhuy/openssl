@@ -22,7 +22,7 @@ bp - Bilinear Pairing functions
  int BP_GROUP_get_curve(const BP_GROUP *group, BIGNUM *p, BIGNUM *a, BIGNUM *b, BN_CTX *ctx);
  const EC_GROUP *BP_GROUP_get_group_G1(BP_GROUP *group);
  int BP_GROUP_get_order(const BP_GROUP *group, BIGNUM *order, BN_CTX *ctx);
- int BP_GROUP_set_param(BP_GROUP *group, BIGNUM *param);
+ int BP_GROUP_set_param(BP_GROUP *group, BIGNUM *param;
  int BP_GROUP_get_param(const BP_GROUP *group, BIGNUM *param);
  int BP_GROUP_set_generator_G1(const BP_GROUP *group, G1_ELEM *g, BIGNUM *n);
  int BP_GROUP_get_generator_G1(const BP_GROUP *group, G1_ELEM *g);
@@ -54,6 +54,7 @@ bp - Bilinear Pairing functions
 	point_conversion_form_t form, unsigned char *buf, size_t len, BN_CTX *ctx);
  int G1_ELEM_oct2point(const BP_GROUP *group, const G1_ELEM *point,
 	const unsigned char *buf, size_t len, BN_CTX *ctx);
+
  int G1_ELEM_add(const BP_GROUP *group, G1_ELEM *r, const G1_ELEM *point,
 	const G1_ELEM *b, BN_CTX *ctx);
  int G1_ELEM_dbl(const BP_GROUP *group, G1_ELEM *r, const G1_ELEM *point, BN_CTX *ctx);
@@ -69,14 +70,6 @@ bp - Bilinear Pairing functions
 	const G1_ELEM *point, const BIGNUM *p_scalar, BN_CTX *ctx);
  int G1_ELEMs_mul(const BP_GROUP *group, G1_ELEM *r, const BIGNUM *scalar,
 	size_t num, const G1_ELEM *points[], const BIGNUM *scalars[], BN_CTX *ctx);
- BIGNUM *G1_ELEM_point2bn(const BP_GROUP *group, const G1_POINT *point,
-	point_conversion_form_t form, BIGNUM *bn, BN_CTX *ctx);
- G1_ELEM *G1_ELEM_bn2point(const BP_GROUP *group, const BIGNUM *bn,
-	G1_ELEM *point, BN_CTX *ctx);
- char *G1_ELEM_point2hex(const BP_GROUP *group, const G1_ELEM *point,
-	point_conversion_form_t form, BN_CTX *ctx);
- G1_ELEM *G1_ELEM_hex2point(const BP_GROUP *group, const char *hex,
-	G1_ELEM *point, BN_CTX *ctx);
 
  int G1_ELEM_add(const BP_GROUP *group, G1_ELEM *r, const G1_ELEM *point,
 	const G1_ELEM *b, BN_CTX *ctx);
@@ -114,14 +107,6 @@ bp - Bilinear Pairing functions
 	point_conversion_form_t form, unsigned char *buf, size_t len, BN_CTX *ctx);
  int G2_ELEM_oct2point(const BP_GROUP *group, G2_ELEM *point,
 	const unsigned char *buf, size_t len, BN_CTX *ctx);
- BIGNUM *G2_ELEM_point2bn(const BP_GROUP *group, const G2_POINT *point,
-	point_conversion_form_t form, BIGNUM *bn, BN_CTX *ctx);
- G2_ELEM *G2_ELEM_bn2point(const BP_GROUP *group, const BIGNUM *bn,
-	G2_ELEM *point, BN_CTX *ctx);
- char *G2_ELEM_point2hex(const BP_GROUP *group, const G2_ELEM *point,
-	point_conversion_form_t form, BN_CTX *ctx);
- G2_ELEM *G2_ELEM_hex2point(const BP_GROUP *group, const char *hex,
-	G2_ELEM *point, BN_CTX *ctx);
 
  int G2_ELEM_add(const BP_GROUP *group, G2_ELEM *r, const G2_ELEM *a,
 	const G2_ELEM *b, BN_CTX *ctx);
@@ -149,14 +134,6 @@ bp - Bilinear Pairing functions
 	size_t len, BN_CTX *ctx);
  int GT_ELEM_oct2elem(const BP_GROUP *group, GT_ELEM *point, const unsigned char *buf,
 	size_t len, BN_CTX *ctx);
- BIGNUM *GT_ELEM_elem2bn(const BP_GROUP *group, const GT_elem *elem,
-	elem_conversion_form_t form, BIGNUM *bn, BN_CTX *ctx);
- GT_ELEM *GT_ELEM_bn2elem(const BP_GROUP *group, const BIGNUM *bn,
-	GT_ELEM *elem, BN_CTX *ctx);
- char *GT_ELEM_elem2hex(const BP_GROUP *group, const GT_ELEM *elem,
-	elem_conversion_form_t form, BN_CTX *ctx);
- GT_ELEM *GT_ELEM_hex2elem(const BP_GROUP *group, const char *hex,
-	GT_ELEM *elem, BN_CTX *ctx);
 
  int GT_ELEM_add(const BP_GROUP *group, GT_ELEM *r, const GT_ELEM *a, const GT_ELEM *b, BN_CTX *ctx);
  int GT_ELEM_sub(const BP_GROUP *group, GT_ELEM *r, const GT_ELEM *a, const GT_ELEM *b, BN_CTX *ctx);
