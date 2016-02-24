@@ -404,7 +404,7 @@ int BP_GROUP_get_param(const BP_GROUP *group, BIGNUM *param) {
 }
 
 int BP_GROUP_set_generator_G1(const BP_GROUP *group, G1_ELEM *g, BIGNUM *n) {
-	/* This is a prime-order Barreto-Naehrig curve. */
+	/* This is a prime-order Barreto-Naehrig curve, no cofactor needed. */
     return EC_GROUP_set_generator(group->ec, g->p, n, BN_value_one());
 }
 
