@@ -16,14 +16,14 @@ G1_ELEM_new, G1_ELEM_free, G1_ELEM_clear_free, G1_ELEM_copy, G1_ELEM_dup, G1_ELE
  G1_ELEM *G1_ELEM_dup(const G1_ELEM *a, const BP_GROUP *group);
 
  int G1_ELEM_set_to_infinity(const BP_GROUP *group, G1_ELEM *point);
- int G1_ELEM_set_Jprojective_coordinates(const BP_GROUP *group,
-	G1_ELEM *point, const BIGNUM *x, const BIGNUM *y, const BIGNUM *z, BN_CTX *ctx);
- int G1_ELEM_get_Jprojective_coordinates(const BP_GROUP *group,
-	const G1_ELEM *point, BIGNUM *x, BIGNUM *y, BIGNUM *z, BN_CTX *ctx);
  int G1_ELEM_set_affine_coordinates(const BP_GROUP *group, G1_ELEM *point,
 	const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
  int G1_ELEM_get_affine_coordinates(const BP_GROUP *group,
 	const G1_ELEM *point, BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
+ int G1_ELEM_set_Jprojective_coordinates(const BP_GROUP *group,
+	G1_ELEM *point, const BIGNUM *x, const BIGNUM *y, const BIGNUM *z, BN_CTX *ctx);
+ int G1_ELEM_get_Jprojective_coordinates(const BP_GROUP *group,
+	const G1_ELEM *point, BIGNUM *x, BIGNUM *y, BIGNUM *z, BN_CTX *ctx);
  int G1_ELEM_set_compressed_coordinates(const BP_GROUP *group, G1_ELEM *point,
 	const BIGNUM *x, int y_bit, BN_CTX *ctx);
  size_t G1_ELEM_point2oct(const BP_GROUP *group, const G1_ELEM *point,
@@ -49,24 +49,24 @@ G1_ELEM object.
 
 A valid point on a curve is the special point at infinity. A point is set to be at infinity by calling G1_ELEM_set_to_infinity.
 
-The affine co-ordinates for a point describe a point in terms of its x and y position. The function
-G1_ELEM_set_affine_coordinates sets the B<x> and B<y> co-ordinates for the point
+The affine coordinates for a point describe a point in terms of its x and y position. The function
+G1_ELEM_set_affine_coordinates sets the B<x> and B<y> coordinates for the point
 B<p> defined over the group G1 given in B<group>.
 
-As well as the affine co-ordinates, a point can alternatively be described in terms of its Jacobian
-projective co-ordinates. Jacobian projective co-ordinates are expressed as three values x, y and z. Working in
+As well as the affine coordinates, a point can alternatively be described in terms of its Jacobian
+projective coordinates. Jacobian projective coordinates are expressed as three values x, y and z. Working in
 this co-ordinate system provides more efficient point multiplication operations.
-A mapping exists between Jacobian projective co-ordinates and affine co-ordinates. A Jacobian projective co-ordinate (x, y, z)
-can be written as an affine co-ordinate as (x/(z^2), y/(z^3)). Conversion to Jacobian projective to affine co-ordinates is simple. The co-ordinate (x, y) is
-mapped to (x, y, 1). To set or get the projective co-ordinates use G1_ELEM_set_Jprojective_coordinates and
+A mapping exists between Jacobian projective coordinates and affine coordinates. A Jacobian projective co-ordinate (x, y, z)
+can be written as an affine co-ordinate as (x/(z^2), y/(z^3)). Conversion to Jacobian projective to affine coordinates is simple. The co-ordinate (x, y) is
+mapped to (x, y, 1). To set or get the projective coordinates use G1_ELEM_set_Jprojective_coordinates and
 G1_ELEM_get_Jprojective_coordinates respectively.
 
-Points can also be described in terms of their compressed co-ordinates. For a point (x, y), for any given value for x such that the point is
+Points can also be described in terms of their compressed coordinates. For a point (x, y), for any given value for x such that the point is
 on the curve there will only ever be two possible values for y. Therefore a point can be set using the G1_ELEM_set_compressed_coordinates
 where B<x> is the x co-ordinate and B<y_bit> is a value 0 or 1 to identify which of the two possible values for y should be used.
 
 In addition G1_ELEMs can be converted to octet strings in a buffer along with an associated buffer length.
-The functions G1_ELEM_point2oct and G1_ELEM_oct2point convert from and to G1_ELEMs for the octet string format.
+The functions G1_ELEM_point2oct and G1_ELEM_oct2point convert from and to G1_ELEMs for the octet string format, respectively.
 
 The function G1_ELEM_point2oct must be supplied with a buffer long enough to store the octet string. The return value provides the number of
 octets stored. Calling the function with a NULL buffer will not perform the conversion but will still return the required buffer length.

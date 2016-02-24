@@ -40,14 +40,14 @@ bp - Bilinear Pairing functions
  G1_ELEM *G1_ELEM_dup(const G1_ELEM *a, const BP_GROUP *group);
 
  int G1_ELEM_set_to_infinity(const BP_GROUP *group, G1_ELEM *point);
- int G1_ELEM_set_Jprojective_coordinates(const BP_GROUP *group,
-	G1_ELEM *point, const BIGNUM *x, const BIGNUM *y, const BIGNUM *z, BN_CTX *ctx);
- int G1_ELEM_get_Jprojective_coordinates(const BP_GROUP *group,
-	const G1_ELEM *point, BIGNUM *x, BIGNUM *y, BIGNUM *z, BN_CTX *ctx);
  int G1_ELEM_set_affine_coordinates(const BP_GROUP *group, G1_ELEM *point,
 	const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
  int G1_ELEM_get_affine_coordinates(const BP_GROUP *group,
 	const G1_ELEM *point, BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
+ int G1_ELEM_set_Jprojective_coordinates(const BP_GROUP *group,
+	G1_ELEM *point, const BIGNUM *x, const BIGNUM *y, const BIGNUM *z, BN_CTX *ctx);
+ int G1_ELEM_get_Jprojective_coordinates(const BP_GROUP *group,
+	const G1_ELEM *point, BIGNUM *x, BIGNUM *y, BIGNUM *z, BN_CTX *ctx);
  int G1_ELEM_set_compressed_coordinates(const BP_GROUP *group, G1_ELEM *point,
 	const BIGNUM *x, int y_bit, BN_CTX *ctx);
  size_t G1_ELEM_point2oct(const BP_GROUP *group, const G1_ELEM *point,
@@ -78,14 +78,14 @@ bp - Bilinear Pairing functions
  G2_ELEM *G2_ELEM_dup(const G2_ELEM *point, const BP_GROUP *group);
 
  int G2_ELEM_set_to_infinity(const BP_GROUP *group, G2_ELEM *point);
- int G2_ELEM_set_Jprojective_coordinates(const BP_GROUP *group,
-	G2_ELEM *point, const BIGNUM *x[2], const BIGNUM *y[2], const BIGNUM *z[2], BN_CTX *ctx);
- int G2_ELEM_get_Jprojective_coordinates(const BP_GROUP *group,
-	const G2_ELEM *point, BIGNUM *x[2], BIGNUM *y[2], BIGNUM *z[2], BN_CTX *ctx);
  int G2_ELEM_set_affine_coordinates(const BP_GROUP *group, G2_ELEM *point,
 	const BIGNUM *x[2], const BIGNUM *y[2], BN_CTX *ctx);
  int G2_ELEM_get_affine_coordinates(const BP_GROUP *group,
 	const G2_ELEM *point, BIGNUM *x[2], BIGNUM *y[2], BN_CTX *ctx);
+ int G2_ELEM_set_Jprojective_coordinates(const BP_GROUP *group,
+	G2_ELEM *point, const BIGNUM *x[2], const BIGNUM *y[2], const BIGNUM *z[2], BN_CTX *ctx);
+ int G2_ELEM_get_Jprojective_coordinates(const BP_GROUP *group,
+	const G2_ELEM *point, BIGNUM *x[2], BIGNUM *y[2], BIGNUM *z[2], BN_CTX *ctx);
  size_t G2_ELEM_point2oct(const BP_GROUP *group, const G2_ELEM *point,
 	point_conversion_form_t form, unsigned char *buf, size_t len, BN_CTX *ctx);
  int G2_ELEM_oct2point(const BP_GROUP *group, G2_ELEM *point,
@@ -136,7 +136,7 @@ bp - Bilinear Pairing functions
 This library implements a set of functions designed to perform operations over bilinear groups G1, G2, GT of order q
 defined over pairing-friendly prime elliptic curves. These groups are equipped with a bilinear map (pairing) of the form
 e : G1 x G2 -> GT.  The implementation is tailored to computing the optimal ate pairing over Barreto-Naehrig (BN) curves
-with embedding degree k = 12 of the form:
+with embedding degree k = 12. This familu of curves is ideal for implementation at the 128-bit security level and has form:
 
 E(Fp) : y^2 = x^3 + b.
 
@@ -152,7 +152,7 @@ q = 36u^4 + 36u^3 + 18u^2 + 6u + 1
 
 For BN-curves, G1 is a q-order cyclic subgroup of E and G2 is a subgroup of E'(Fp^2) isomorphic to a q-order subgroup
 of E(Fp^k). The group GT is the set of q-th roots of unity in the finite field Fp^k. Hence, G1 elements are points
-on the elliptic curve defined over the base field, G2 elements are points on the curve defined over Fp2, and GT
+on the elliptic curve defined over the base field, G2 elements are points on the curve defined over Fp^2, and GT
 elements are polynomials with coefficients in Fp and degree smaller than k. For this reason, groups G1 and G2 are
 commonly written additively, while group GT is usually written multiplicatively.
 
@@ -161,7 +161,12 @@ a B<G1_ELEM> structure storing a point on E. Elements from G2 are represented by
 point on the twist E'.
 
 For simplicity and efficiency in the extension field arithmetic, this implementation only accepts primes congruent
-to 3 mod 4 and to 1 mod 6, parameterized by negative integers.
+to 3 mod 4 and to 1 mod 6, parameterized by negative integers. The efficient towering scheme used is:
+
+Fp^2 = Fp[i]/(i^2 - beta), beta a non-square in Fp
+Fp^4 = Fp^2[s]/(s^2 - xi), with xi a non-square in Fp^2
+Fp^6 = Fp^2[v]/(v^3 - xi), with xi a non-cube in Fp^2
+Fp^12 = Fp^4[t]/(t^3 - s) or Fp^6[w]/(w^2 - v) or Fp^6[w]/(w^6 - xi) with xi a non-square and non-cube in Fp^2.
 
 The creation and destruction of B<BP_GROUP> objects is described in L<BP_GROUP_new(3)>. Functions for
 manipulating B<BP_GROUP> objects are described in L<BP_GROUP_copy(3)>.

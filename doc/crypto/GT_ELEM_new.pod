@@ -52,9 +52,9 @@ octets stored. Calling the function with a NULL buffer will not perform the conv
 
 GT_ELEM_new and GT_ELEM_dup return the newly allocated GT_ELEM or NULL on error.
 
-The following functions return 1 on success or 0 on error: GT_ELEM_copy, GT_ELEM_zero, GT_ELEM_set_unity, and GT_ELEM_oct2point.
+The following functions return 1 on success or 0 on error: GT_ELEM_copy, GT_ELEM_zero, GT_ELEM_set_unity, and GT_ELEM_oct2elem.
 
-GT_ELEM_point2oct returns the length of the required buffer, or 0 on error.
+GT_ELEM_elem2oct returns the length of the required buffer, or 0 on error.
 
 =head1 SEE ALSO
 

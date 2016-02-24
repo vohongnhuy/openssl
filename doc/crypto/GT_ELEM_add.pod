@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-GT_ELEM_add, GT_ELEM_sub, GT_ELEM_sqr, GT_ELEM_mul, GT_ELEM_invert, GT_ELEM_cmp, GT_ELEM_exp - Functions for performing mathematical operations and tests on B<GT_ELEM> objects.
+GT_ELEM_add, GT_ELEM_sub, GT_ELEM_sqr, GT_ELEM_mul, GT_ELEM_inv, GT_ELEM_cmp, GT_ELEM_exp - Functions for performing mathematical operations and tests on B<GT_ELEM> objects.
 
 =head1 SYNOPSIS
 
@@ -25,8 +25,8 @@ GT_ELEM_add, GT_ELEM_sub, GT_ELEM_sqr, GT_ELEM_mul, GT_ELEM_invert, GT_ELEM_cmp,
 GT_ELEM adds the two elements B<a> and B<b> and places the result in B<r>. Similarly GT_ELEM_sub subtracts B<b> from B<a> and places the
 result in B<r>. In both cases it is valid for B<r> to be one of B<a> or B<b>.
 
-GT_ELEM_sqr computes the squaring of element B<a> and places the result in B<r> and GT_ELEM_mul multiplies elements B<a> and B<b> and stores
-the result in B<r>.
+GT_ELEM_sqr computes the squaring of element B<a> and places the result in B<r>.
+GT_ELEM_mul multiplies elements B<a> and B<b> and stores the result in B<r>.
 
 GT_ELEM_inv calculates the inverse of the field element B<a>. The result is placed back in B<r>.
 
@@ -38,7 +38,7 @@ GT_ELEM_cmp compares the two supplied elements and tests whether or not they are
 
 =head1 RETURN VALUES
 
-The following functions return 1 on success or 0 on error: GT_ELEM_add, GT_ELEM_dbl, GT_ELEM<sqr, GT_ELEM_mul, GT_ELEM_invert, GT_ELEM_exp.
+The following functions return 1 on success or 0 on error: GT_ELEM_add, GT_ELEM_dbl, GT_ELEM<sqr, GT_ELEM_mul, GT_ELEM_inv, GT_ELEM_exp.
 
 GT_ELEM_is_zero returns 1 if the field element is the additive identity 0, or 0 otherwise.
 
