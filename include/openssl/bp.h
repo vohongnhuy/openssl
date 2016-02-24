@@ -829,7 +829,7 @@ int GT_ELEM_exp(const BP_GROUP *group, GT_ELEM *r, const GT_ELEM *a, const BIGNU
 int GT_ELEM_pairing(const BP_GROUP *group, GT_ELEM *r, const G1_ELEM *p,
                     const G2_ELEM *q, BN_CTX *ctx);
 
-/** /** Computes r = prod_{i=0}^{num-1} e(p[i],q[i])
+/** Computes r = prod_{i=0}^{num-1} e(p[i],q[i])
  *  \param  group  underlying BP_GROUP object
  *  \param  r      GT_ELEM object for the result
  *  \param  num    number of pairings to evaluate
