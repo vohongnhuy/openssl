@@ -26,7 +26,7 @@
 -nprs
 -npsl
 -nsc
--ppi1 
+-ppi1
 -saf
 -sai
 -saw
@@ -676,3 +676,11 @@
 -T ossl_intmax_t
 -T ossl_uintmax_t
 -T ossl_uintmax_t
+-T BP_GROUP
+-T FP12
+-T FP2
+-T FP6
+-T G1_ELEM
+-T G2_ELEM
+-T G2_PRE_COMP
+-T GT_ELEM
