@@ -69,9 +69,8 @@ FP12 *FP12_new()
 {
     FP12 *ret = NULL;
 
-    if ((ret = OPENSSL_zalloc(sizeof(*ret))) == NULL) {
-        return (NULL);
-    }
+    if ((ret = OPENSSL_zalloc(sizeof(*ret))) == NULL)
+        return NULL;
 
     ret->f[0] = FP6_new();
     ret->f[1] = FP6_new();
@@ -191,11 +190,9 @@ int FP12_mul(const BP_GROUP *group, FP12 *r, const FP12 *a, const FP12 *b,
     FP6 *t0 = NULL, *t1 = NULL, *t2 = NULL;
     int ret = 0;
 
-    if (((t0 = FP6_new()) == NULL) ||
-        ((t1 = FP6_new()) == NULL) ||
-		((t2 = FP6_new()) == NULL)) {
+    if ((t0 = FP6_new()) == NULL || (t1 = FP6_new()) == NULL
+        || (t2 = FP6_new()) == NULL)
         goto err;
-    }
 
     /*
      * Karatsuba algorithm.
@@ -256,11 +253,9 @@ int FP12_mul_sparse(const BP_GROUP *group, FP12 *r, const FP12 *a,
     FP6 *t0 = NULL, *t1 = NULL, *t2 = NULL;
     int ret = 0;
 
-    if (((t0 = FP6_new()) == NULL) ||
-        ((t1 = FP6_new()) == NULL) ||
-		((t2 = FP6_new()) == NULL)) {
+    if ((t0 = FP6_new()) == NULL || (t1 = FP6_new()) == NULL
+        || (t2 = FP6_new()) == NULL)
         goto err;
-    }
 
     /*
      * t0 = a_0 * b_0
@@ -318,13 +313,11 @@ int FP12_mul_sparse(const BP_GROUP *group, FP12 *r, const FP12 *a,
 
 int FP12_inv(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
 {
-	FP6 *t0 = NULL, *t1 = NULL;
+    FP6 *t0 = NULL, *t1 = NULL;
     int ret = 0;
 
-    if (((t0 = FP6_new()) == NULL) ||
-		((t1 = FP6_new()) == NULL)) {
+    if ((t0 = FP6_new()) == NULL || (t1 = FP6_new()) == NULL)
         goto err;
-    }
 
     if (!FP6_sqr(group, t0, a->f[0], ctx))
         goto err;
@@ -362,6 +355,7 @@ int FP12_conj(const BP_GROUP *group, FP12 *r, const FP12 *a)
 int FP12_frb(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
 {
     int ret = 0;
+
     if (!FP2_conj(group, r->f[0]->f[0], a->f[0]->f[0]))
         goto err;
     if (!FP2_conj(group, r->f[1]->f[0], a->f[1]->f[0]))
@@ -417,14 +411,14 @@ int FP12_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     return ret;
 }
 
-int FP12_exp_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, const BIGNUM *b, BN_CTX *ctx)
+int FP12_exp_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                 const BIGNUM *b, BN_CTX *ctx)
 {
     int i, ret = 0;
     FP12 *t = { NULL };
 
-    if (((t = FP12_new()) == NULL)) {
+    if ((t = FP12_new()) == NULL)
         goto err;
-    }
 
     if (!FP12_copy(t, a))
         goto err;
@@ -447,7 +441,8 @@ int FP12_exp_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, const BIGNUM *b,
     return ret;
 }
 
-int FP12_exp_pck(const BP_GROUP *group, FP12 *r, const FP12 *a, const BIGNUM *b, BN_CTX *ctx)
+int FP12_exp_pck(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                 const BIGNUM *b, BN_CTX *ctx)
 {
     int i, j, w, ret = 0;
 
@@ -513,7 +508,7 @@ int FP12_sqr(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     FP6 *t0 = NULL, *t1 = NULL;
     int ret = 0;
 
-    if (((t0 = FP6_new()) == NULL) || ((t1 = FP6_new()) == NULL)) {
+    if ((t0 = FP6_new()) == NULL || (t1 = FP6_new()) == NULL) {
         goto err;
     }
 
@@ -551,15 +546,11 @@ int FP12_sqr_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     FP2 *t4 = NULL, *t5 = NULL, *t6 = NULL;
     int ret = 0;
 
-    if (((t0 = FP2_new()) == NULL) ||
-        ((t1 = FP2_new()) == NULL) ||
-        ((t2 = FP2_new()) == NULL) ||
-        ((t3 = FP2_new()) == NULL) ||
-        ((t4 = FP2_new()) == NULL) ||
-        ((t5 = FP2_new()) == NULL) ||
-        ((t6 = FP2_new()) == NULL)) {
+    if ((t0 = FP2_new()) == NULL || (t1 = FP2_new()) == NULL
+        || (t2 = FP2_new()) == NULL || (t3 = FP2_new()) == NULL
+        || (t4 = FP2_new()) == NULL || (t5 = FP2_new()) == NULL
+        || (t6 = FP2_new()) == NULL)
         goto err;
-    }
 
     /*
      * Granger-Scott squaring.
@@ -682,15 +673,11 @@ int FP12_sqr_pck(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     FP2 *t4 = NULL, *t5 = NULL, *t6 = NULL;
     int ret = 0;
 
-    if (((t0 = FP2_new()) == NULL) ||
-        ((t1 = FP2_new()) == NULL) ||
-        ((t2 = FP2_new()) == NULL) ||
-        ((t3 = FP2_new()) == NULL) ||
-        ((t4 = FP2_new()) == NULL) ||
-        ((t5 = FP2_new()) == NULL) ||
-        ((t6 = FP2_new()) == NULL)) {
+    if ((t0 = FP2_new()) == NULL || (t1 = FP2_new()) == NULL
+        || (t2 = FP2_new()) == NULL || (t3 = FP2_new()) == NULL
+        || (t4 = FP2_new()) == NULL || (t5 = FP2_new()) == NULL
+        || (t6 = FP2_new()) == NULL)
         goto err;
-    }
 
     /*
      * Karabina compressed squaring.
@@ -786,11 +773,9 @@ int FP12_back(const BP_GROUP *group, FP12 *r[], const FP12 *a[], int num,
             return 0;
 
     for (i = 0; i < num; i++) {
-	    if (((t0[i] = FP2_new()) == NULL) ||
-			((t1[i] = FP2_new()) == NULL) ||
-			((t2[i] = FP2_new()) == NULL)) {
-	            goto err;
-	    }
+        if (((t0[i] = FP2_new()) == NULL) ||
+            ((t1[i] = FP2_new()) == NULL) || ((t2[i] = FP2_new()) == NULL))
+            goto err;
     }
 
     for (i = 0; i < num; i++) {
@@ -874,22 +859,22 @@ int FP12_back(const BP_GROUP *group, FP12 *r[], const FP12 *a[], int num,
             (r[i]->f[0]->f[0]->f[0], r[i]->f[0]->f[0]->f[0], group->one))
             goto err;
 
-		if (!FP2_copy(r[i]->f[0]->f[1], a[i]->f[0]->f[1]))
-			goto err;
-		if (!FP2_copy(r[i]->f[0]->f[2], a[i]->f[0]->f[2]))
-			goto err;
-		if (!FP2_copy(r[i]->f[1]->f[0], a[i]->f[1]->f[0]))
-			goto err;
-		if (!FP2_copy(r[i]->f[1]->f[2], a[i]->f[1]->f[2]))
-			goto err;
+        if (!FP2_copy(r[i]->f[0]->f[1], a[i]->f[0]->f[1]))
+            goto err;
+        if (!FP2_copy(r[i]->f[0]->f[2], a[i]->f[0]->f[2]))
+            goto err;
+        if (!FP2_copy(r[i]->f[1]->f[0], a[i]->f[1]->f[0]))
+            goto err;
+        if (!FP2_copy(r[i]->f[1]->f[2], a[i]->f[1]->f[2]))
+            goto err;
     }
 
     ret = 1;
  err:
     for (i = 0; i < num; i++) {
-	    FP2_free(t0[i]);
-	    FP2_free(t1[i]);
-	    FP2_free(t2[i]);
+        FP2_free(t0[i]);
+        FP2_free(t1[i]);
+        FP2_free(t2[i]);
     }
     BN_CTX_free(new_ctx);
     return ret;
