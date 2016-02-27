@@ -1,6 +1,63 @@
 /*
+ * Written by Diego F. Aranha (d@miracl.com) and contributed to the
+ * the OpenSSL project.
+ */
+/* ====================================================================
+ * Copyright (c) 2016 The OpenSSL Project.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. All advertising materials mentioning features or use of this
+ *    software must display the following acknowledgment:
+ *    "This product includes software developed by the OpenSSL Project
+ *    for use in the OpenSSL Toolkit. (http://www.OpenSSL.org/)"
+ *
+ * 4. The names "OpenSSL Toolkit" and "OpenSSL Project" must not be used to
+ *    endorse or promote products derived from this software without
+ *    prior written permission. For written permission, please contact
+ *    licensing@OpenSSL.org.
+ *
+ * 5. Products derived from this software may not be called "OpenSSL"
+ *    nor may "OpenSSL" appear in their names without prior written
+ *    permission of the OpenSSL Project.
+ *
+ * 6. Redistributions of any form whatsoever must retain the following
+ *    acknowledgment:
+ *    "This product includes software developed by the OpenSSL Project
+ *    for use in the OpenSSL Toolkit (http://www.OpenSSL.org/)"
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE OpenSSL PROJECT ``AS IS'' AND ANY
+ * EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
  * ====================================================================
- * Copyright 2015 MIRACL UK Ltd., All Rights Reserved. Portions of the
+ *
+ * This product includes cryptographic software written by Eric Young
+ * (eay@cryptsoft.com).  This product includes software written by Tim
+ * Hudson (tjh@cryptsoft.com).
+ *
+ */
+/*
+ * ====================================================================
+ * Copyright 2016 MIRACL UK Ltd., All Rights Reserved. Portions of the
  * attached software ("Contribution") are developed by MIRACL UK LTD., and
  * are contributed to the OpenSSL project. The Contribution is licensed
  * pursuant to the OpenSSL open source license provided above.
@@ -28,7 +85,7 @@ struct g2_pre_comp_st {
     size_t numblocks;           /* max. number of blocks for which we have
                                  * precomputation */
     size_t w;                   /* window size */
-    G2_ELEM **points;          /* array with pre-calculated multiples of
+    G2_ELEM **points;           /* array with pre-calculated multiples of
                                  * generator: 'num' pointers to G2_ELEM
                                  * objects followed by a NULL */
     size_t num;                 /* numblocks * 2^(w-1) */
@@ -43,9 +100,8 @@ static G2_PRE_COMP *g2_pre_comp_new(const BP_GROUP *group)
         return NULL;
 
     ret = OPENSSL_zalloc(sizeof(*ret));
-    if (ret == NULL) {
+    if (ret == NULL)
         return ret;
-    }
     ret->group = group;
     ret->blocksize = 8;         /* default */
     ret->w = 4;                 /* default */
@@ -91,8 +147,7 @@ void g2_pre_comp_free(G2_PRE_COMP *pre)
                   1))
 
 int G2_ELEM_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *g_scalar,
-                const G2_ELEM *point, const BIGNUM *p_scalar,
-                BN_CTX *ctx)
+                const G2_ELEM *point, const BIGNUM *p_scalar, BN_CTX *ctx)
 {
     const G2_ELEM *points[1];
     const BIGNUM *scalars[1];
@@ -100,8 +155,8 @@ int G2_ELEM_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *g_scalar,
     points[0] = point;
     scalars[0] = p_scalar;
     return G2_ELEMs_mul(group, r, g_scalar,
-                     (point != NULL
-                      && p_scalar != NULL), points, scalars, ctx);
+                        (point != NULL
+                         && p_scalar != NULL), points, scalars, ctx);
 
 }
 
@@ -113,8 +168,8 @@ int G2_ELEM_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *g_scalar,
  * in the addition if scalar != NULL
  */
 int G2_ELEMs_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *scalar,
-                size_t num, const G2_ELEM *points[], const BIGNUM *scalars[],
-                BN_CTX *ctx)
+                 size_t num, const G2_ELEM *points[],
+                 const BIGNUM *scalars[], BN_CTX *ctx)
 {
     BN_CTX *new_ctx = NULL;
     const G2_ELEM *generator = NULL;
@@ -131,9 +186,9 @@ int G2_ELEMs_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *scalar,
     size_t *wNAF_len = NULL;
     size_t max_len = 0;
     size_t num_val;
-    G2_ELEM **val = NULL;      /* precomputation */
+    G2_ELEM **val = NULL;       /* precomputation */
     G2_ELEM **v;
-    G2_ELEM ***val_sub = NULL; /* pointers to sub-arrays of 'val' or
+    G2_ELEM ***val_sub = NULL;  /* pointers to sub-arrays of 'val' or
                                  * 'pre_comp->points' */
     const G2_PRE_COMP *pre_comp = NULL;
     int num_scalar = 0;         /* flag: will be set to 1 if 'scalar' must be
@@ -141,13 +196,11 @@ int G2_ELEMs_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *scalar,
                                  * precomputation is not available */
     int ret = 0;
 
-    if ((scalar == NULL) && (num == 0)) {
+    if (scalar == NULL && num == 0)
         return G2_ELEM_set_to_infinity(group, r);
-    }
 
-    if (ctx == NULL)
-        if ((ctx = new_ctx = BN_CTX_new()) == NULL)
-            return 0;
+    if (ctx == NULL && (ctx = new_ctx = BN_CTX_new()) == NULL)
+        return 0;
 
     if (scalar != NULL) {
         generator = group->gen2;
@@ -160,8 +213,7 @@ int G2_ELEMs_mul(const BP_GROUP *group, G2_ELEM *r, const BIGNUM *scalar,
 
         pre_comp = group->g2_pre_comp;
         if (pre_comp && pre_comp->numblocks
-            && (G2_ELEM_cmp(group, generator, pre_comp->points[0], ctx) ==
-                0)) {
+            && G2_ELEM_cmp(group, generator, pre_comp->points[0], ctx) == 0) {
             blocksize = pre_comp->blocksize;
 
             /*
@@ -526,10 +578,10 @@ int g2_wNAF_precompute_mult(BP_GROUP *group, BN_CTX *ctx)
     }
 
     BN_CTX_start(ctx);
-	if ((order = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if (!BP_GROUP_get_order(group, order, ctx))
-		goto err;
+    if ((order = BN_CTX_get(ctx)) == NULL)
+        goto err;
+    if (!BP_GROUP_get_order(group, order, ctx))
+        goto err;
     if (BN_is_zero(order)) {
         ECerr(EC_F_EC_WNAF_PRECOMPUTE_MULT, EC_R_UNKNOWN_ORDER);
         goto err;
@@ -544,10 +596,9 @@ int g2_wNAF_precompute_mult(BP_GROUP *group, BN_CTX *ctx)
      */
     blocksize = 8;
     w = 4;
-    if (G2_window_bits_for_scalar_size(bits) > w) {
+    if (G2_window_bits_for_scalar_size(bits) > w)
         /* let's not make the window too small ... */
         w = G2_window_bits_for_scalar_size(bits);
-    }
 
     numblocks = (bits + blocksize - 1) / blocksize; /* max. number of blocks
                                                      * to use for wNAF
@@ -612,10 +663,9 @@ int g2_wNAF_precompute_mult(BP_GROUP *group, BN_CTX *ctx)
 
             if (!G2_ELEM_dbl(group, base, tmp_point, ctx))
                 goto err;
-            for (k = 2; k < blocksize; k++) {
+            for (k = 2; k < blocksize; k++)
                 if (!G2_ELEM_dbl(group, base, base, ctx))
                     goto err;
-            }
         }
     }
 

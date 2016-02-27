@@ -1,6 +1,63 @@
 /*
+ * Written by Diego F. Aranha (d@miracl.com) and contributed to the
+ * the OpenSSL project.
+ */
+/* ====================================================================
+ * Copyright (c) 2016 The OpenSSL Project.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. All advertising materials mentioning features or use of this
+ *    software must display the following acknowledgment:
+ *    "This product includes software developed by the OpenSSL Project
+ *    for use in the OpenSSL Toolkit. (http://www.OpenSSL.org/)"
+ *
+ * 4. The names "OpenSSL Toolkit" and "OpenSSL Project" must not be used to
+ *    endorse or promote products derived from this software without
+ *    prior written permission. For written permission, please contact
+ *    licensing@OpenSSL.org.
+ *
+ * 5. Products derived from this software may not be called "OpenSSL"
+ *    nor may "OpenSSL" appear in their names without prior written
+ *    permission of the OpenSSL Project.
+ *
+ * 6. Redistributions of any form whatsoever must retain the following
+ *    acknowledgment:
+ *    "This product includes software developed by the OpenSSL Project
+ *    for use in the OpenSSL Toolkit (http://www.OpenSSL.org/)"
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE OpenSSL PROJECT ``AS IS'' AND ANY
+ * EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
  * ====================================================================
- * Copyright 2015 MIRACL UK Ltd., All Rights Reserved. Portions of the
+ *
+ * This product includes cryptographic software written by Eric Young
+ * (eay@cryptsoft.com).  This product includes software written by Tim
+ * Hudson (tjh@cryptsoft.com).
+ *
+ */
+/*
+ * ====================================================================
+ * Copyright 2016 MIRACL UK Ltd., All Rights Reserved. Portions of the
  * attached software ("Contribution") are developed by MIRACL UK LTD., and
  * are contributed to the OpenSSL project. The Contribution is licensed
  * pursuant to the OpenSSL open source license provided above.
@@ -12,9 +69,8 @@ FP6 *FP6_new()
 {
     FP6 *ret = NULL;
 
-    if ((ret = OPENSSL_zalloc(sizeof(*ret))) == NULL) {
+    if ((ret = OPENSSL_zalloc(sizeof(*ret))) == NULL)
         return (NULL);
-    }
 
     ret->f[0] = FP2_new();
     ret->f[1] = FP2_new();
@@ -155,14 +211,10 @@ int FP6_mul(const BP_GROUP *group, FP6 *r, const FP6 *a, const FP6 *b,
     FP2 *v0, *v1 = NULL, *v2 = NULL, *t0 = NULL, *t1 = NULL, *t2 = NULL;
     int ret = 0;
 
-    if (((v0 = FP2_new()) == NULL) ||
-        ((v1 = FP2_new()) == NULL) ||
-        ((v2 = FP2_new()) == NULL) ||
-        ((t0 = FP2_new()) == NULL) ||
-        ((t1 = FP2_new()) == NULL) ||
-        ((t2 = FP2_new()) == NULL)) {
-            goto err;
-    }
+    if ((v0 = FP2_new()) == NULL || (v1 = FP2_new()) == NULL
+        || (v2 = FP2_new()) == NULL || (t0 = FP2_new()) == NULL
+        || (t1 = FP2_new()) == NULL || (t2 = FP2_new()) == NULL)
+        goto err;
 
     /*
      * v0 = a_0b_0
@@ -251,20 +303,16 @@ int FP6_mul(const BP_GROUP *group, FP6 *r, const FP6 *a, const FP6 *b,
     return ret;
 }
 
-int FP6_mul_sparse(const BP_GROUP *group, FP6 *r, const FP6 *a, const FP6 *b,
-                BN_CTX *ctx)
+int FP6_mul_sparse(const BP_GROUP *group, FP6 *r, const FP6 *a,
+                   const FP6 *b, BN_CTX *ctx)
 {
     FP2 *v0, *v1 = NULL, *v2 = NULL, *t0 = NULL, *t1 = NULL, *t2 = NULL;
     int ret = 0;
 
-    if (((v0 = FP2_new()) == NULL) ||
-        ((v1 = FP2_new()) == NULL) ||
-        ((v2 = FP2_new()) == NULL) ||
-        ((t0 = FP2_new()) == NULL) ||
-        ((t1 = FP2_new()) == NULL) ||
-        ((t2 = FP2_new()) == NULL)) {
-            goto err;
-    }
+    if ((v0 = FP2_new()) == NULL || (v1 = FP2_new()) == NULL
+        || (v2 = FP2_new()) == NULL || (t0 = FP2_new()) == NULL
+        || (t1 = FP2_new()) == NULL || (t2 = FP2_new()) == NULL)
+        goto err;
 
     /*
      * v0 = a_0b_0
@@ -340,14 +388,12 @@ int FP6_mul_art(const BP_GROUP *group, FP6 *r, const FP6 *a, BN_CTX *ctx)
     FP2 *t0;
     int ret = 0;
 
-    if ((t0 = FP2_new())  == NULL) {
+    if ((t0 = FP2_new()) == NULL)
         goto err;
-    }
 
     FP2_copy(t0, a->f[0]);
-    if (!FP2_mul_nor(group, r->f[0], a->f[2], ctx)) {
+    if (!FP2_mul_nor(group, r->f[0], a->f[2], ctx))
         goto err;
-    }
     FP2_copy(r->f[2], a->f[1]);
     FP2_copy(r->f[1], t0);
 
@@ -363,13 +409,10 @@ int FP6_sqr(const BP_GROUP *group, FP6 *r, const FP6 *a, BN_CTX *ctx)
     FP2 *t0, *t1 = NULL, *t2 = NULL, *t3 = NULL, *t4 = NULL;
     int ret = 0;
 
-    if (((t0 = FP2_new()) == NULL) ||
-        ((t1 = FP2_new()) == NULL) ||
-        ((t2 = FP2_new()) == NULL) ||
-        ((t3 = FP2_new()) == NULL) ||
-        ((t4 = FP2_new()) == NULL)) {
-            goto err;
-    }
+    if ((t0 = FP2_new()) == NULL || (t1 = FP2_new()) == NULL
+        || (t2 = FP2_new()) == NULL || (t3 = FP2_new()) == NULL
+        || (t4 = FP2_new()) == NULL)
+        goto err;
 
     /*
      * t0 = a_0^2
@@ -464,6 +507,7 @@ int FP6_sqr(const BP_GROUP *group, FP6 *r, const FP6 *a, BN_CTX *ctx)
         goto err;
 
     ret = 1;
+
  err:
     FP2_free(t0);
     FP2_free(t1);
@@ -478,12 +522,9 @@ int FP6_inv(const BP_GROUP *group, FP6 *r, const FP6 *a, BN_CTX *ctx)
     FP2 *v0, *v1 = NULL, *v2 = NULL, *t0 = NULL;
     int ret = 0;
 
-    if (((v0 = FP2_new()) == NULL) ||
-        ((v1 = FP2_new()) == NULL) ||
-        ((v2 = FP2_new()) == NULL) ||
-        ((t0 = FP2_new()) == NULL)) {
-            goto err;
-    }
+    if ((v0 = FP2_new()) == NULL || (v1 = FP2_new()) == NULL
+        || (v2 = FP2_new()) == NULL || (t0 = FP2_new()) == NULL)
+        goto err;
 
     /*
      * v0 = a_0^2 - E * a_1 * a_2.
@@ -547,6 +588,7 @@ int FP6_inv(const BP_GROUP *group, FP6 *r, const FP6 *a, BN_CTX *ctx)
         goto err;
 
     ret = 1;
+
  err:
     FP2_free(v0);
     FP2_free(v1);

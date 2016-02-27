@@ -1,6 +1,63 @@
 /*
+ * Written by Diego F. Aranha (d@miracl.com) and contributed to the
+ * the OpenSSL project.
+ */
+/* ====================================================================
+ * Copyright (c) 2016 The OpenSSL Project.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. All advertising materials mentioning features or use of this
+ *    software must display the following acknowledgment:
+ *    "This product includes software developed by the OpenSSL Project
+ *    for use in the OpenSSL Toolkit. (http://www.OpenSSL.org/)"
+ *
+ * 4. The names "OpenSSL Toolkit" and "OpenSSL Project" must not be used to
+ *    endorse or promote products derived from this software without
+ *    prior written permission. For written permission, please contact
+ *    licensing@OpenSSL.org.
+ *
+ * 5. Products derived from this software may not be called "OpenSSL"
+ *    nor may "OpenSSL" appear in their names without prior written
+ *    permission of the OpenSSL Project.
+ *
+ * 6. Redistributions of any form whatsoever must retain the following
+ *    acknowledgment:
+ *    "This product includes software developed by the OpenSSL Project
+ *    for use in the OpenSSL Toolkit (http://www.OpenSSL.org/)"
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE OpenSSL PROJECT ``AS IS'' AND ANY
+ * EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
  * ====================================================================
- * Copyright 2015 MIRACL UK Ltd., All Rights Reserved. Portions of the
+ *
+ * This product includes cryptographic software written by Eric Young
+ * (eay@cryptsoft.com).  This product includes software written by Tim
+ * Hudson (tjh@cryptsoft.com).
+ *
+ */
+/*
+ * ====================================================================
+ * Copyright 2016 MIRACL UK Ltd., All Rights Reserved. Portions of the
  * attached software ("Contribution") are developed by MIRACL UK LTD., and
  * are contributed to the OpenSSL project. The Contribution is licensed
  * pursuant to the OpenSSL open source license provided above.
@@ -12,9 +69,8 @@ FP2 *FP2_new()
 {
     FP2 *ret = NULL;
 
-    if ((ret = OPENSSL_zalloc(sizeof(*ret))) == NULL) {
-        return (NULL);
-    }
+    if ((ret = OPENSSL_zalloc(sizeof(*ret))) == NULL)
+        return NULL;
 
     ret->f[0] = BN_new();
     ret->f[1] = BN_new();
@@ -57,12 +113,10 @@ void FP2_clear_free(FP2 *a)
 
 int FP2_rand(const BP_GROUP *group, FP2 *a)
 {
-    if (!BN_rand_range(a->f[0], group->field)) {
+    if (!BN_rand_range(a->f[0], group->field))
         return 0;
-    }
-    if (!BN_rand_range(a->f[1], group->field)) {
+    if (!BN_rand_range(a->f[1], group->field))
         return 0;
-    }
     return 1;
 }
 
@@ -220,13 +274,10 @@ int FP2_mul(const BP_GROUP *group, FP2 *r, const FP2 *a, const FP2 *b,
             return 0;
 
     BN_CTX_start(ctx);
-    if (((t0 = BN_CTX_get(ctx)) == NULL) ||
-        ((t1 = BN_CTX_get(ctx)) == NULL) ||
-        ((t2 = BN_CTX_get(ctx)) == NULL) ||
-        ((t3 = BN_CTX_get(ctx)) == NULL) ||
-        ((t4 = BN_CTX_get(ctx)) == NULL)) {
+    if ((t0 = BN_CTX_get(ctx)) == NULL || (t1 = BN_CTX_get(ctx)) == NULL
+        || (t2 = BN_CTX_get(ctx)) == NULL || (t3 = BN_CTX_get(ctx)) == NULL
+        || (t4 = BN_CTX_get(ctx)) == NULL)
         goto err;
-    }
 
     /*
      * Karatsuba algorithm.
@@ -273,6 +324,7 @@ int FP2_mul(const BP_GROUP *group, FP2 *r, const FP2 *a, const FP2 *b,
         goto err;
 
     ret = 1;
+
  err:
     BN_CTX_end(ctx);
     BN_CTX_free(new_ctx);
@@ -290,9 +342,8 @@ int FP2_mul_nor(const BP_GROUP *group, FP2 *r, const FP2 *a, BN_CTX *ctx)
             return 0;
 
     BN_CTX_start(ctx);
-    if ((t = BN_CTX_get(ctx)) == NULL) {
+    if ((t = BN_CTX_get(ctx)) == NULL)
         goto err;
-    }
 
     /*
      * Multiply by non-quadratic/cubic residue.
@@ -323,9 +374,8 @@ int FP2_mul_art(const BP_GROUP *group, FP2 *r, const FP2 *a, BN_CTX *ctx)
             return 0;
 
     BN_CTX_start(ctx);
-    if ((t = BN_CTX_get(ctx)) == NULL) {
+    if ((t = BN_CTX_get(ctx)) == NULL)
         goto err;
-    }
 
     /*
      * Multiply by adjoined root.
@@ -354,11 +404,9 @@ int FP2_sqr(const BP_GROUP *group, FP2 *r, const FP2 *a, BN_CTX *ctx)
             return 0;
 
     BN_CTX_start(ctx);
-    if (((t0 = BN_CTX_get(ctx)) == NULL) ||
-        ((t1 = BN_CTX_get(ctx)) == NULL) ||
-        ((t2 = BN_CTX_get(ctx)) == NULL)) {
+    if ((t0 = BN_CTX_get(ctx)) == NULL || (t1 = BN_CTX_get(ctx)) == NULL
+        || (t2 = BN_CTX_get(ctx)) == NULL)
         goto err;
-    }
 
     /*
      * t0 = (a_0 + a_1).
@@ -408,9 +456,8 @@ int FP2_inv(const BP_GROUP *group, FP2 *r, const FP2 *a, BN_CTX *ctx)
             return 0;
 
     BN_CTX_start(ctx);
-    if (((t0 = BN_CTX_get(ctx)) == NULL) || ((t1 = BN_CTX_get(ctx)) == NULL)) {
+    if ((t0 = BN_CTX_get(ctx)) == NULL || (t1 = BN_CTX_get(ctx)) == NULL)
         goto err;
-    }
 
     /*
      * t0 = a_0^2, t1 = a_1^2.
@@ -475,7 +522,7 @@ int FP2_inv_sim(const BP_GROUP *group, FP2 *r[], FP2 *a[], int num,
     if ((u = FP2_new()) == NULL)
         goto err;
     for (i = 0; i < num; i++) {
-        if (((t[i] = FP2_new()) == NULL))
+        if ((t[i] = FP2_new()) == NULL)
             goto err;
     }
 
@@ -517,6 +564,7 @@ int FP2_inv_sim(const BP_GROUP *group, FP2 *r[], FP2 *a[], int num,
         goto err;
 
     ret = 1;
+
  err:
     FP2_free(u);
     for (i = 0; i < num; i++) {
@@ -525,14 +573,14 @@ int FP2_inv_sim(const BP_GROUP *group, FP2 *r[], FP2 *a[], int num,
     return ret;
 }
 
-int FP2_exp(const BP_GROUP *group, FP2 *r, const FP2 *a, const BIGNUM *b, BN_CTX *ctx)
+int FP2_exp(const BP_GROUP *group, FP2 *r, const FP2 *a, const BIGNUM *b,
+            BN_CTX *ctx)
 {
     int i, ret = 0;
     FP2 *t = NULL;
 
-    if (((t = FP2_new()) == NULL)) {
+    if ((t = FP2_new()) == NULL)
         goto err;
-    }
 
     if (!FP2_copy(t, a))
         goto err;
@@ -550,6 +598,7 @@ int FP2_exp(const BP_GROUP *group, FP2 *r, const FP2 *a, const BIGNUM *b, BN_CTX
         goto err;
 
     ret = 1;
+
  err:
     FP2_free(t);
     return ret;
