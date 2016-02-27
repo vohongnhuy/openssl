@@ -90,71 +90,46 @@ void FP12_clear(FP12 *a)
 
 void FP12_free(FP12 *a)
 {
-    if (a == NULL) {
+    if (a == NULL)
         return;
-    } else {
-        FP6_free(a->f[0]);
-        FP6_free(a->f[1]);
-    }
+    FP6_free(a->f[0]);
+    FP6_free(a->f[1]);
     OPENSSL_free(a);
 }
 
 void FP12_clear_free(FP12 *a)
 {
-    if (a == NULL) {
+    if (a == NULL)
         return;
-    } else {
-        FP6_clear_free(a->f[0]);
-        FP6_clear_free(a->f[1]);
-    }
+    FP6_clear_free(a->f[0]);
+    FP6_clear_free(a->f[1]);
     OPENSSL_free(a);
-}
-
-int FP12_rand(const BP_GROUP *group, FP12 *a)
-{
-    if (!FP6_rand(group, a->f[0]))
-        return 0;
-    if (!FP6_rand(group, a->f[1]))
-        return 0;
-    return 1;
-}
-
-void FP12_print(const FP12 *a)
-{
-    FP6_print(a->f[0]);
-    FP6_print(a->f[1]);
 }
 
 int FP12_zero(FP12 *a)
 {
-    if (!FP6_zero(a->f[0]))
-        return 0;
-    if (!FP6_zero(a->f[1]))
+    if (!FP6_zero(a->f[0]) || !FP6_zero(a->f[1]))
         return 0;
     return 1;
 }
 
 int FP12_cmp(const FP12 *a, const FP12 *b)
 {
-    if (FP6_cmp(a->f[0], b->f[0]) != 0)
-        return 1;
-    if (FP6_cmp(a->f[1], b->f[1]) != 0)
-        return 1;
-    return 0;
+    if ((FP6_cmp(a->f[0], b->f[0]) == 0) && (FP6_cmp(a->f[1], b->f[1]) == 0))
+        return 0;
+    return 1;
 }
 
 int FP12_copy(FP12 *a, const FP12 *b)
 {
-    if (!FP6_copy(a->f[0], b->f[0]))
-        return 0;
-    if (!FP6_copy(a->f[1], b->f[1]))
+    if (!FP6_copy(a->f[0], b->f[0]) || !FP6_copy(a->f[1], b->f[1]))
         return 0;
     return 1;
 }
 
 int FP12_is_zero(const FP12 *a)
 {
-    return FP6_is_zero(a->f[0]) & FP6_is_zero(a->f[1]);
+    return FP6_is_zero(a->f[0]) && FP6_is_zero(a->f[1]);
 }
 
 int FP12_add(const BP_GROUP *group, FP12 *r, const FP12 *a, const FP12 *b)
@@ -191,8 +166,9 @@ int FP12_mul(const BP_GROUP *group, FP12 *r, const FP12 *a, const FP12 *b,
     int ret = 0;
 
     if ((t0 = FP6_new()) == NULL || (t1 = FP6_new()) == NULL
-        || (t2 = FP6_new()) == NULL)
+        || (t2 = FP6_new()) == NULL) {
         goto err;
+    }
 
     /*
      * Karatsuba algorithm.
@@ -254,8 +230,9 @@ int FP12_mul_sparse(const BP_GROUP *group, FP12 *r, const FP12 *a,
     int ret = 0;
 
     if ((t0 = FP6_new()) == NULL || (t1 = FP6_new()) == NULL
-        || (t2 = FP6_new()) == NULL)
+        || (t2 = FP6_new()) == NULL) {
         goto err;
+    }
 
     /*
      * t0 = a_0 * b_0
@@ -337,36 +314,36 @@ int FP12_inv(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
         goto err;
 
     ret = 1;
-
  err:
     FP6_free(t0);
     FP6_free(t1);
     return ret;
 }
 
-int FP12_conj(const BP_GROUP *group, FP12 *r, const FP12 *a)
+int FP12_conjugate(const BP_GROUP *group, FP12 *r, const FP12 *a)
 {
-    FP6_copy(r->f[0], a->f[0]);
+    if (!FP6_copy(r->f[0], a->f[0]))
+        return 0;
     if (!FP6_neg(group, r->f[1], a->f[1]))
         return 0;
     return 1;
 }
 
-int FP12_frb(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
+int FP12_frobenius(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
 {
     int ret = 0;
 
-    if (!FP2_conj(group, r->f[0]->f[0], a->f[0]->f[0]))
+    if (!FP2_conjugate(group, r->f[0]->f[0], a->f[0]->f[0]))
         goto err;
-    if (!FP2_conj(group, r->f[1]->f[0], a->f[1]->f[0]))
+    if (!FP2_conjugate(group, r->f[1]->f[0], a->f[1]->f[0]))
         goto err;
-    if (!FP2_conj(group, r->f[0]->f[1], a->f[0]->f[1]))
+    if (!FP2_conjugate(group, r->f[0]->f[1], a->f[0]->f[1]))
         goto err;
-    if (!FP2_conj(group, r->f[1]->f[1], a->f[1]->f[1]))
+    if (!FP2_conjugate(group, r->f[1]->f[1], a->f[1]->f[1]))
         goto err;
-    if (!FP2_conj(group, r->f[0]->f[2], a->f[0]->f[2]))
+    if (!FP2_conjugate(group, r->f[0]->f[2], a->f[0]->f[2]))
         goto err;
-    if (!FP2_conj(group, r->f[1]->f[2], a->f[1]->f[2]))
+    if (!FP2_conjugate(group, r->f[1]->f[2], a->f[1]->f[2]))
         goto err;
     if (!FP2_mul_frb(group, r->f[1]->f[0], r->f[1]->f[0], 1, ctx))
         goto err;
@@ -383,7 +360,8 @@ int FP12_frb(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     return ret;
 }
 
-int FP12_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
+int FP12_to_cyclotomic(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                       BN_CTX *ctx)
 {
     FP12 *t = NULL;
     int ret = 0;
@@ -393,14 +371,14 @@ int FP12_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
 
     if (!FP12_inv(group, t, a, ctx))
         goto err;
-    if (!FP12_conj(group, r, a))
+    if (!FP12_conjugate(group, r, a))
         goto err;
     if (!FP12_mul(group, r, r, t, ctx))
         goto err;
 
-    if (!FP12_frb(group, t, r, ctx))
+    if (!FP12_frobenius(group, t, r, ctx))
         goto err;
-    if (!FP12_frb(group, t, t, ctx))
+    if (!FP12_frobenius(group, t, t, ctx))
         goto err;
     if (!FP12_mul(group, r, r, t, ctx))
         goto err;
@@ -411,11 +389,11 @@ int FP12_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     return ret;
 }
 
-int FP12_exp_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a,
-                 const BIGNUM *b, BN_CTX *ctx)
+int FP12_exp_cyclotomic(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                        const BIGNUM *b, BN_CTX *ctx)
 {
     int i, ret = 0;
-    FP12 *t = { NULL };
+    FP12 *t = NULL;
 
     if ((t = FP12_new()) == NULL)
         goto err;
@@ -424,7 +402,7 @@ int FP12_exp_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a,
         goto err;
 
     for (i = BN_num_bits(b) - 2; i >= 0; i--) {
-        if (!FP12_sqr_cyc(group, t, t, ctx))
+        if (!FP12_sqr_cyclotomic(group, t, t, ctx))
             goto err;
         if (BN_is_bit_set(b, i)) {
             if (!FP12_mul(group, t, t, a, ctx))
@@ -441,23 +419,21 @@ int FP12_exp_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a,
     return ret;
 }
 
-int FP12_exp_pck(const BP_GROUP *group, FP12 *r, const FP12 *a,
-                 const BIGNUM *b, BN_CTX *ctx)
+int FP12_exp_compressed(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                        const BIGNUM *b, BN_CTX *ctx)
 {
     int i, j, w, ret = 0;
 
     w = 0;
     for (i = 1; i < BN_num_bits(b); i++) {
-        if (BN_is_bit_set(b, i)) {
+        if (BN_is_bit_set(b, i))
             w++;
-        }
     }
 
     FP12 *t[w];
     for (i = 0; i < w; i++) {
-        if ((t[i] = FP12_new()) == NULL) {
+        if ((t[i] = FP12_new()) == NULL)
             goto err;
-        }
     }
 
     i = 1;
@@ -470,7 +446,7 @@ int FP12_exp_pck(const BP_GROUP *group, FP12 *r, const FP12 *a,
                 goto err;
             j++;
         }
-        if (!FP12_sqr_pck(group, t[j], t[j], ctx))
+        if (!FP12_sqr_compressed(group, t[j], t[j], ctx))
             goto err;
         i++;
     }
@@ -478,7 +454,7 @@ int FP12_exp_pck(const BP_GROUP *group, FP12 *r, const FP12 *a,
     /*
      * Decompress partial results simultaneously.
      */
-    if (!FP12_back(group, t, (const FP12 **)t, w, ctx))
+    if (!FP12_decompress(group, t, (const FP12 **)t, w, ctx))
         goto err;
     /*
      * Combine partial results into t[0].
@@ -508,9 +484,8 @@ int FP12_sqr(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     FP6 *t0 = NULL, *t1 = NULL;
     int ret = 0;
 
-    if ((t0 = FP6_new()) == NULL || (t1 = FP6_new()) == NULL) {
+    if ((t0 = FP6_new()) == NULL || (t1 = FP6_new()) == NULL)
         goto err;
-    }
 
     if (!FP6_add(group, t0, a->f[0], a->f[1]))
         goto err;
@@ -540,7 +515,8 @@ int FP12_sqr(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     return ret;
 }
 
-int FP12_sqr_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
+int FP12_sqr_cyclotomic(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                        BN_CTX *ctx)
 {
     FP2 *t0 = NULL, *t1 = NULL, *t2 = NULL, *t3 = NULL;
     FP2 *t4 = NULL, *t5 = NULL, *t6 = NULL;
@@ -549,8 +525,9 @@ int FP12_sqr_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     if ((t0 = FP2_new()) == NULL || (t1 = FP2_new()) == NULL
         || (t2 = FP2_new()) == NULL || (t3 = FP2_new()) == NULL
         || (t4 = FP2_new()) == NULL || (t5 = FP2_new()) == NULL
-        || (t6 = FP2_new()) == NULL)
+        || (t6 = FP2_new()) == NULL) {
         goto err;
+    }
 
     /*
      * Granger-Scott squaring.
@@ -667,7 +644,8 @@ int FP12_sqr_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     return ret;
 }
 
-int FP12_sqr_pck(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
+int FP12_sqr_compressed(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                        BN_CTX *ctx)
 {
     FP2 *t0 = NULL, *t1 = NULL, *t2 = NULL, *t3 = NULL;
     FP2 *t4 = NULL, *t5 = NULL, *t6 = NULL;
@@ -676,8 +654,9 @@ int FP12_sqr_pck(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     if ((t0 = FP2_new()) == NULL || (t1 = FP2_new()) == NULL
         || (t2 = FP2_new()) == NULL || (t3 = FP2_new()) == NULL
         || (t4 = FP2_new()) == NULL || (t5 = FP2_new()) == NULL
-        || (t6 = FP2_new()) == NULL)
+        || (t6 = FP2_new()) == NULL) {
         goto err;
+    }
 
     /*
      * Karabina compressed squaring.
@@ -761,21 +740,22 @@ int FP12_sqr_pck(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx)
     return ret;
 }
 
-int FP12_back(const BP_GROUP *group, FP12 *r[], const FP12 *a[], int num,
-              BN_CTX *ctx)
+int FP12_decompress(const BP_GROUP *group, FP12 *r[], const FP12 *a[],
+                    int num, BN_CTX *ctx)
 {
     FP2 *t0[num], *t1[num], *t2[num];
     BN_CTX *new_ctx = NULL;
     int i, ret = 0;
 
-    if (ctx == NULL)
-        if ((ctx = new_ctx = BN_CTX_new()) == NULL)
-            return 0;
+    if (ctx == NULL && (ctx = new_ctx = BN_CTX_new()) == NULL)
+        return 0;
 
     for (i = 0; i < num; i++) {
+        t0[i] = t1[i] = t2[i] = NULL;
         if (((t0[i] = FP2_new()) == NULL) ||
-            ((t1[i] = FP2_new()) == NULL) || ((t2[i] = FP2_new()) == NULL))
+            ((t1[i] = FP2_new()) == NULL) || ((t2[i] = FP2_new()) == NULL)) {
             goto err;
+        }
     }
 
     for (i = 0; i < num; i++) {
@@ -814,7 +794,7 @@ int FP12_back(const BP_GROUP *group, FP12 *r[], const FP12 *a[], int num,
     /*
      * t1 = 1 / t1.
      */
-    if (!FP2_inv_sim(group, t1, t1, num, ctx))
+    if (!FP2_inv_simultaneous(group, t1, t1, num, ctx))
         goto err;
 
     for (i = 0; i < num; i++) {

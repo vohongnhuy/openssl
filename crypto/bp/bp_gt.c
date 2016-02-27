@@ -86,8 +86,7 @@ void GT_ELEM_free(GT_ELEM *a)
 {
     if (a == NULL)
         return;
-    else
-        FP12_free(a->f);
+    FP12_free(a->f);
     OPENSSL_free(a);
 }
 
@@ -95,8 +94,7 @@ void GT_clear_free(GT_ELEM *a)
 {
     if (a == NULL)
         return;
-    else
-        FP12_clear_free(a->f);
+    FP12_clear_free(a->f);
     OPENSSL_free(a);
 }
 
@@ -108,15 +106,13 @@ int GT_ELEM_copy(GT_ELEM *a, const GT_ELEM *b)
 GT_ELEM *GT_ELEM_dup(const GT_ELEM *a, const BP_GROUP *group)
 {
     GT_ELEM *t;
-    int r;
 
     if (a == NULL)
         return NULL;
     t = GT_ELEM_new(group);
     if (t == NULL)
         return NULL;
-    r = GT_ELEM_copy(t, a);
-    if (!r) {
+    if (!GT_ELEM_copy(t, a)) {
         GT_ELEM_free(t);
         return NULL;
     }
@@ -177,9 +173,8 @@ size_t GT_ELEM_elem2oct(const BP_GROUP *group, const GT_ELEM *a,
         if (len < ret)
             goto err;
 
-        if (ctx == NULL)
-            if ((ctx = new_ctx = BN_CTX_new()) == NULL)
-                return 0;
+        if (ctx == NULL && (ctx = new_ctx = BN_CTX_new()) == NULL)
+            return 0;
 
         BN_CTX_start(ctx);
         used_ctx = 1;
@@ -241,9 +236,8 @@ int GT_ELEM_oct2elem(const BP_GROUP *group, GT_ELEM *a,
     if (len != enc_len)
         return 0;
 
-    if (ctx == NULL)
-        if ((ctx = new_ctx = BN_CTX_new()) == NULL)
-            return 0;
+    if (ctx == NULL && (ctx = new_ctx = BN_CTX_new()) == NULL)
+        return 0;
 
     BN_CTX_start(ctx);
     if ((f = BN_CTX_get(ctx)) == NULL)
@@ -309,5 +303,5 @@ int GT_ELEM_cmp(const GT_ELEM *a, const GT_ELEM *b)
 int GT_ELEM_exp(const BP_GROUP *group, GT_ELEM *r, const GT_ELEM *a,
                 const BIGNUM *b, BN_CTX *ctx)
 {
-    return FP12_exp_cyc(group, r->f, a->f, b, ctx);
+    return FP12_exp_cyclotomic(group, r->f, a->f, b, ctx);
 }

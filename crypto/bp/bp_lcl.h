@@ -217,8 +217,6 @@ void FP2_clear_free(FP2 *a);
 /*               Functions for arithmetic in Fp^2                   */
 /********************************************************************/
 
-int FP2_rand(const BP_GROUP *group, FP2 *a);
-void FP2_print(const FP2 *a);
 int FP2_zero(FP2 *a);
 int FP2_cmp(const FP2 *a, const FP2 *b);
 int FP2_copy(FP2 *a, const FP2 *b);
@@ -235,9 +233,9 @@ int FP2_mul_art(const BP_GROUP *group, FP2 *r, const FP2 *a, BN_CTX *ctx);
 int FP2_mul_nor(const BP_GROUP *group, FP2 *r, const FP2 *a, BN_CTX *ctx);
 int FP2_sqr(const BP_GROUP *group, FP2 *r, const FP2 *a, BN_CTX *ctx);
 int FP2_inv(const BP_GROUP *group, FP2 *r, const FP2 *a, BN_CTX *ctx);
-int FP2_conj(const BP_GROUP *group, FP2 *r, const FP2 *a);
-int FP2_inv_sim(const BP_GROUP *group, FP2 *r[], FP2 *a[], int num,
-                BN_CTX *ctx);
+int FP2_conjugate(const BP_GROUP *group, FP2 *r, const FP2 *a);
+int FP2_inv_simultaneous(const BP_GROUP *group, FP2 *r[], FP2 *a[], int num,
+                         BN_CTX *ctx);
 int FP2_exp(const BP_GROUP *group, FP2 *r, const FP2 *a, const BIGNUM *b,
             BN_CTX *ctx);
 
@@ -255,8 +253,6 @@ void FP6_clear_free(FP6 *a);
 /*               Functions for arithmetic in Fp^6                   */
 /********************************************************************/
 
-int FP6_rand(const BP_GROUP *group, FP6 *a);
-void FP6_print(const FP6 *a);
 int FP6_zero(FP6 *a);
 int FP6_cmp(const FP6 *a, const FP6 *b);
 int FP6_copy(FP6 *a, const FP6 *b);
@@ -285,8 +281,7 @@ void FP12_clear_free(FP12 *a);
 /********************************************************************/
 /*               Functions for arithmetic in Fp^12                   */
 /********************************************************************/
-int FP12_rand(const BP_GROUP *group, FP12 *a);
-void FP12_print(const FP12 *a);
+
 int FP12_zero(FP12 *a);
 int FP12_cmp(const FP12 *a, const FP12 *b);
 int FP12_copy(FP12 *a, const FP12 *b);
@@ -299,18 +294,22 @@ int FP12_mul(const BP_GROUP *group, FP12 *r, const FP12 *a,
 int FP12_mul_sparse(const BP_GROUP *group, FP12 *r, const FP12 *a,
                     const FP12 *b, BN_CTX *ctx);
 int FP12_sqr(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx);
-int FP12_sqr_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx);
-int FP12_sqr_pck(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx);
+int FP12_sqr_cyclotomic(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                        BN_CTX *ctx);
+int FP12_sqr_compressed(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                        BN_CTX *ctx);
 int FP12_inv(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx);
-int FP12_conj(const BP_GROUP *group, FP12 *r, const FP12 *a);
-int FP12_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx);
-int FP12_back(const BP_GROUP *group, FP12 *r[], const FP12 *a[], int num,
-              BN_CTX *ctx);
-int FP12_frb(const BP_GROUP *group, FP12 *r, const FP12 *a, BN_CTX *ctx);
-int FP12_exp_cyc(const BP_GROUP *group, FP12 *r, const FP12 *a,
-                 const BIGNUM *b, BN_CTX *ctx);
-int FP12_exp_pck(const BP_GROUP *group, FP12 *r, const FP12 *a,
-                 const BIGNUM *b, BN_CTX *ctx);
+int FP12_conjugate(const BP_GROUP *group, FP12 *r, const FP12 *a);
+int FP12_to_cyclotomic(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                       BN_CTX *ctx);
+int FP12_decompress(const BP_GROUP *group, FP12 *r[], const FP12 *a[],
+                    int num, BN_CTX *ctx);
+int FP12_frobenius(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                   BN_CTX *ctx);
+int FP12_exp_cyclotomic(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                        const BIGNUM *b, BN_CTX *ctx);
+int FP12_exp_compressed(const BP_GROUP *group, FP12 *r, const FP12 *a,
+                        const BIGNUM *b, BN_CTX *ctx);
 
 /********************************************************************/
 /*              Functions for precomputation in G2                  */
