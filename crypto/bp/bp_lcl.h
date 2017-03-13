@@ -65,7 +65,7 @@
 #include <openssl/ec.h>
 #include <openssl/bn.h>
 #include <openssl/bp.h>
-
+#include "internal/refcount.h"
 /********************************************************************/
 /*               Internal types for bilinear groups                 */
 /********************************************************************/

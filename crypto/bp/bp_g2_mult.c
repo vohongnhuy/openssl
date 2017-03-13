@@ -86,7 +86,8 @@ struct g2_pre_comp_st {
                                  * generator: 'num' pointers to G2_ELEM
                                  * objects followed by a NULL */
     size_t num;                 /* numblocks * 2^(w-1) */
-    int references;
+    CRYPTO_REF_COUNT references;
+    CRYPTO_RWLOCK *lock;
 };
 
 static G2_PRE_COMP *g2_pre_comp_new(const BP_GROUP *group)
@@ -103,22 +104,30 @@ static G2_PRE_COMP *g2_pre_comp_new(const BP_GROUP *group)
     ret->blocksize = 8;         /* default */
     ret->w = 4;                 /* default */
     ret->references = 1;
+    ret->lock = CRYPTO_THREAD_lock_new();
+    if (ret->lock == NULL) {
+        BPerr(BP_F_G2_PRE_COMP_NEW, BP_R_MALLOC_FAILURE);
+        OPENSSL_free(ret);
+        return NULL;
+    }
     return ret;
 }
 
 G2_PRE_COMP *g2_pre_comp_dup(G2_PRE_COMP *pre)
 {
+    int i;
     if (pre != NULL)
-        CRYPTO_add(&pre->references, 1, CRYPTO_LOCK_EC_PRE_COMP);
+        CRYPTO_UP_REF(&pre->references, &i, pre->lock);
     return pre;
 }
 
 void g2_pre_comp_free(G2_PRE_COMP *pre)
 {
-    if (pre == NULL
-        || CRYPTO_add(&pre->references, -1, CRYPTO_LOCK_EC_PRE_COMP) > 0)
+    int i;
+    if (pre == NULL)
         return;
 
+    CRYPTO_DOWN_REF(&pre->references, &i, pre->lock);
     if (pre->points != NULL) {
         G2_ELEM **pts;
 
@@ -126,6 +135,7 @@ void g2_pre_comp_free(G2_PRE_COMP *pre)
             G2_ELEM_free(*pts);
         OPENSSL_free(pre->points);
     }
+    CRYPTO_THREAD_lock_free(pre->lock);
     OPENSSL_free(pre);
 }
 

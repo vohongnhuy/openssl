@@ -927,7 +927,7 @@ void ERR_load_BP_strings(void);
 # define BP_F_GT_MILLER_ADD                               120
 # define BP_F_GT_MILLER_DBL                               121
 # define BP_F_GT_MILLER_FINAL                             122
-
+# define BP_F_G2_PRE_COMP_NEW                             123
 /* Reason codes. */
 # define BP_R_BUFFER_TOO_SMALL                            100
 # define BP_R_INVALID_ARGUMENT                            101
