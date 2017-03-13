@@ -594,6 +594,13 @@ static int testnum;
 /* Nb of iterations to do per algorithm and key-size */
 static long c[ALGOR_NUM][SIZE_NUM];
 
+#define R_BP_FP254BNB  0
+#ifndef OPENSSL_NO_BP
+static OPT_PAIR bp_choices[] = {
+    {"fp254bnb", R_BP_FP254BNB},
+    {NULL}
+};
+#endif
 #ifndef OPENSSL_NO_MD2
 static int EVP_Digest_MD2_loop(void *args)
 {
@@ -2885,6 +2892,55 @@ int speed_main(int argc, char **argv)
         }
     }
 #endif
+#ifndef OPENSSL_NO_BP
+    if (RAND_status() != 1) {
+        RAND_seed(rnd_seed, sizeof rnd_seed);
+        rnd_fake = 1;
+    }
+    for (j = 0; j < BP_NUM; j++) {
+        if (!bp_doit[j])
+            continue;
+        bp[j] = BP_GROUP_new_by_curve_name(test_pairings[j]);
+        g1[j] = G1_ELEM_new(bp[j]);
+        g2[j] = G2_ELEM_new(bp[j]);
+        gt[j] = GT_ELEM_new(bp[j]);
+        bctx = BN_CTX_new();
+        if (bp[j] == NULL || g1[j]== NULL || g2[j] == NULL || gt[j] == NULL) {
+                BIO_printf(bio_err, "Pairing failure.\n");
+                ERR_print_errors(bio_err);
+                rsa_count = 1;
+        } else {
+            if (!BP_GROUP_get_generator_G1(bp[j], g1[j]) ||
+                !BP_GROUP_get_generator_G2(bp[j], g2[j])) {
+                BIO_printf(bio_err, "Bilinear pairing failure.\n");
+                ERR_print_errors(bio_err);
+                rsa_count = 1;
+            } else {
+                pkey_print_message("bilinear", "pairing",
+                                   bp_c[j][0],
+                                   test_pairing_bits[j], BP_SECONDS);
+                Time_F(START);
+                for (count = 0, run = 1; COND(bp_c[j][0]); count++) {
+                    GT_ELEM_pairing(bp[j], gt[j], g1[j], g2[j], bctx);
+                }
+                d = Time_F(STOP);
+                BIO_printf(bio_err,
+                           mr ? "+R7:%ld:%d:%.2f\n" :
+                           "%ld %d-bit pairing ops in %.2fs\n", count,
+                           254, d);
+                bp_results[j][0] = d / (double)count;
+                rsa_count = count;
+            }
+            if (rsa_count <= 1) {
+                /* if longer than 10s, don't do any more */
+                for (j++; j < EC_NUM; j++)
+                    ecdh_doit[j] = 0;
+            }
+        }
+    }
+    if (rnd_fake)
+        RAND_cleanup();
+#endif
 #ifndef NO_FORK
  show_res:
 #endif
@@ -3016,6 +3072,28 @@ int speed_main(int argc, char **argv)
                    test_curves_bits[k],
                    test_curves_names[k],
                    1.0 / ecdh_results[k][0], ecdh_results[k][0]);
+    }
+#endif
+
+#ifndef OPENSSL_NO_BP
+    j = 1;
+    for (k = 0; k < BP_NUM; k++) {
+        if (!bp_doit[k])
+            continue;
+        if (j && !mr) {
+            printf("%32sop        op/s\n", " ");
+            j = 0;
+        }
+        if (mr)
+            printf("+F5:%u:%u:%f:%f\n",
+                   k, test_curves_bits[k],
+                   ecdh_results[k][0], 1.0 / ecdh_results[k][0]);
+
+        else
+            printf("%4u bit pairing (%s) %8.4fs %8.1f\n",
+                   test_pairing_bits[k],
+                   test_pairing_names[k],
+                   bp_results[k][0], 1.0 / bp_results[k][0]);
     }
 #endif
 
