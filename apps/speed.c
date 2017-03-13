@@ -1212,14 +1212,6 @@ static int run_benchmark(int async_jobs,
     return error ? -1 : total_op_count;
 }
 
-#define R_BP_FP254BNB  0
-#ifndef OPENSSL_NO_BP
-static OPT_PAIR bp_choices[] = {
-    {"fp254bnb", R_BP_FP254BNB},
-    {NULL}
-};
-#endif
-
 int speed_main(int argc, char **argv)
 {
     ENGINE *e = NULL;
@@ -1395,19 +1387,11 @@ int speed_main(int argc, char **argv)
 #endif
 
     memset(results, 0, sizeof(results));
-#ifndef OPENSSL_NO_DSA
-    memset(dsa_key, 0, sizeof(dsa_key));
-#endif
 #ifndef OPENSSL_NO_EC
     for (i = 0; i < EC_NUM; i++)
         ecdsa[i] = NULL;
     for (i = 0; i < EC_NUM; i++)
         ecdh_a[i] = ecdh_b[i] = NULL;
-#endif
-#ifndef OPENSSL_NO_RSA
-    memset(rsa_key, 0, sizeof(rsa_key));
-    for (i = 0; i < RSA_NUM; i++)
-        rsa_key[i] = NULL;
 #endif
 #ifndef OPENSSL_NO_BP
     for (i = 0; i < BP_NUM; i++) {
