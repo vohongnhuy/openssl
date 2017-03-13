@@ -240,14 +240,12 @@ static int GT_miller_add(const BP_GROUP *group, FP12 *l, FP2 *x3, FP2 *y3,
                          FP2 *z3, const FP2 *x1, const FP2 *y1,
                          const BIGNUM *xp, const BIGNUM *yp, BN_CTX *ctx)
 {
-    FP2 *t0 = NULL, *t1 = NULL, *t2 = NULL, *t3 = NULL;
-    FP2 *t4 = NULL, *u0 = NULL, *u1 = NULL, *u2 = NULL;
+    FP2 *t1 = NULL, *t2 = NULL, *t3 = NULL;
+    FP2 *t4 = NULL, *u1 = NULL, *u2 = NULL;
     int ret = 0;
 
-    if ((t0 = FP2_new()) == NULL || (t1 = FP2_new()) == NULL
-        || (t2 = FP2_new()) == NULL || (t3 = FP2_new()) == NULL
-        || (t4 = FP2_new()) == NULL || (u0 = FP2_new()) == NULL
-        || (u1 = FP2_new()) == NULL || (u2 = FP2_new()) == NULL) {
+    if ((t1 = FP2_new()) == NULL || (t2 = FP2_new()) == NULL || (t3 = FP2_new()) == NULL
+        || (t4 = FP2_new()) == NULL || (u1 = FP2_new()) == NULL || (u2 = FP2_new()) == NULL) {
         BPerr(BP_F_GT_MILLER_ADD, BP_R_MALLOC_FAILURE);
         goto err;
     }

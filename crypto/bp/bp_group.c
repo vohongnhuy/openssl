@@ -211,7 +211,7 @@ BP_GROUP *BP_GROUP_new_by_curve_name(int nid)
 
 void BP_GROUP_free(BP_GROUP *group)
 {
-    if (group != NULL) {
+    if (group) {
         BN_clear_free(group->one);
         BN_clear_free(group->param);
         BN_clear_free(group->field);
@@ -221,20 +221,24 @@ void BP_GROUP_free(BP_GROUP *group)
         G2_ELEM_free(group->gen2);
         if (group->g2_pre_comp != NULL)
             g2_pre_comp_free(group->g2_pre_comp);
+        OPENSSL_free(group);
     }
 }
 
 void BP_GROUP_clear_free(BP_GROUP *group)
 {
-    BN_free(group->one);
-    BN_free(group->param);
-    BN_free(group->field);
-    FP2_free(group->frb);
-    BN_MONT_CTX_free(group->mont);
-    EC_GROUP_free(group->ec);
-    G2_ELEM_clear_free(group->gen2);
-    if (group->g2_pre_comp != NULL)
-        g2_pre_comp_free(group->g2_pre_comp);
+    if (group) {
+        BN_free(group->one);
+        BN_free(group->param);
+        BN_free(group->field);
+        FP2_free(group->frb);
+        BN_MONT_CTX_free(group->mont);
+        EC_GROUP_free(group->ec);
+        G2_ELEM_clear_free(group->gen2);
+        if (group->g2_pre_comp != NULL)
+            g2_pre_comp_free(group->g2_pre_comp);
+        OPENSSL_free(group);
+    }
 }
 
 int BP_GROUP_copy(BP_GROUP *dest, const BP_GROUP *src)
