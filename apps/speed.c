@@ -1423,10 +1423,6 @@ int speed_main(int argc, char **argv)
         bp_doit[i] = 0;
 #endif
 
-    int ecdsa_doit[EC_NUM] = { 0 };
-    int ecdh_doit[EC_NUM] = { 0 };
-#endif                          /* ndef OPENSSL_NO_EC */
-
     prog = opt_init(argc, argv, speed_options);
     while ((o = opt_next()) != OPT_EOF) {
         switch (o) {
@@ -2834,6 +2830,7 @@ int speed_main(int argc, char **argv)
     if (RAND_status() != 1) {
         RAND_seed(rnd_seed, sizeof rnd_seed);
     }
+    int j;
     for (j = 0; j < BP_NUM; j++) {
         if (!bp_doit[j])
             continue;
