@@ -2876,7 +2876,6 @@ int speed_main(int argc, char **argv)
 #ifndef OPENSSL_NO_BP
     if (RAND_status() != 1) {
         RAND_seed(rnd_seed, sizeof rnd_seed);
-        rnd_fake = 1;
     }
     for (j = 0; j < BP_NUM; j++) {
         if (!bp_doit[j])
@@ -2919,8 +2918,6 @@ int speed_main(int argc, char **argv)
             }
         }
     }
-    if (rnd_fake)
-        RAND_cleanup();
 #endif
 #ifndef NO_FORK
  show_res:
