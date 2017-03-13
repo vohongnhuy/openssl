@@ -262,6 +262,7 @@ $crypto.=" include/openssl/rsa.h" ; # unless $no_rsa;
 $crypto.=" include/openssl/dsa.h" ; # unless $no_dsa;
 $crypto.=" include/openssl/dh.h" ; # unless $no_dh;
 $crypto.=" include/openssl/ec.h" ; # unless $no_ec;
+$crypto.=" include/openssl/bp.h" ; # unless $no_bp;
 $crypto.=" include/openssl/hmac.h" ; # unless $no_hmac;
 $crypto.=" include/openssl/cmac.h" ;
 
